@@ -61,6 +61,8 @@
  * rpc_scan.h, Definitions for the RPCL scanner 
  * Copyright (C) 1987, Sun Microsystems, Inc. 
  */
+#ifndef __RPC_SCAN_HEADER__
+#define __RPC_SCAN_HEADER__
 
 /*
  * kinds of tokens 
@@ -122,10 +124,8 @@ typedef struct token token;
  */
 void scanprint();
 void scan(tok_kind expect, token *tokp);
-void scan2(tok_kind expect1, tok_kind expect2,
-           token *tokp);
-void scan3(tok_kind expect1, tok_kind expect2,
-           tok_kind expect3, token *tokp);
+void scan2(tok_kind expect1, tok_kind expect2, token *tokp);
+void scan3(tok_kind expect1, tok_kind expect2, tok_kind expect3, token *tokp);
 void scan_num(token *tokp);
 void peek(token *tokp);
 int peekscan(tok_kind expect, token *tokp);
@@ -138,6 +138,6 @@ static void findkind(char **mark, token *tokp);
 static int cppline(char *line);
 static int directive(char *line);
 static void printdirective(char *line);
-static void docppline(char *line, int *lineno,
-                      char **fname);
+static void docppline(char *line, int *lineno, char **fname);
 
+#endif //__RPC_SCAN_HEADER__

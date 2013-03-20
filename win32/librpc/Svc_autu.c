@@ -74,12 +74,12 @@ static char sccsid[] = "@(#)svc_auth_unix.c 1.28 88/02/08 Copyr 1984 Sun Micro";
 /*
  * Unix longhand authenticator
  */
-enum auth_stat _svcauth_unix(register struct svc_req *rqst,	register struct rpc_msg *msg)
+enum auth_stat _svcauth_unix(struct svc_req *rqst,	struct rpc_msg *msg)
 {
-	register enum auth_stat stat;
+	enum auth_stat stat;
 	XDR xdrs;
-	register struct authunix_parms *aup;
-	register long *buf;
+	struct authunix_parms *aup;
+	long *buf;
 	struct area {
 		struct authunix_parms area_aup;
 		char area_machname[MAX_MACHINE_NAME+1];
@@ -87,7 +87,7 @@ enum auth_stat _svcauth_unix(register struct svc_req *rqst,	register struct rpc_
 	} *area;
 	u_int auth_len;
 	int str_len, gid_len;
-	register int i;
+	int i;
 
 	area = (struct area *) rqst->rq_clntcred;
 	aup = &area->area_aup;

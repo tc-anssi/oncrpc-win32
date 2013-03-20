@@ -86,8 +86,7 @@ static char ROUTINE[] = "local";
 /*
  * write most of the service, that is, everything but the registrations. 
  */
-void
-write_most()
+void write_most()
 {
 	list *l;
 	definition *def;
@@ -126,10 +125,7 @@ write_most()
 /*
  * write a registration for the given transport 
  */
-void
-write_register(
-	char *transp
-  )
+void write_register(char *transp)
 {
 	list *l;
 	definition *def;
@@ -162,7 +158,7 @@ write_register(
 			f_print(fout, ", IPPROTO_%s)) {\n",
 				streq(transp, "udp") ? "UDP" : "TCP");
 			f_print(fout,
- 				"\t\t(void)fprintf(stderr, \"unable to register (%s, %s, %s).\\n\");\n",
+ 				"\t\t(void)fprintf(stderr, \"unable to (%s, %s, %s).\\n\");\n",
 				def->def_name, vp->vers_name, transp);
 #ifdef WIN32
 			f_print(fout, "#ifdef WIN32\n\t\trpc_nt_exit();\n#endif\n");
@@ -177,8 +173,7 @@ write_register(
 /*
  * write the rest of the service 
  */
-void
-write_rest()
+void write_rest()
 {
 	f_print(fout, "\tsvc_run();\n");
  	f_print(fout, "\t(void)fprintf(stderr, \"svc_run returned\\n\");\n");
@@ -189,10 +184,7 @@ write_rest()
 	f_print(fout, "}\n");
 }
 
-void
-write_programs(
-	char *storage
-  )
+void write_programs(char *storage)
 {
 	list *l;
 	definition *def;
@@ -206,11 +198,7 @@ write_programs(
 }
 
 
-static void
-write_program(
-	definition *def,
-	char *storage
-  )
+static void write_program(definition *def, char *storage)
 {
 	version_list *vp;
 	proc_list *proc;
@@ -409,36 +397,23 @@ struct call_params *params;\n\
 	}
 }
 
-static void
-printerr(
-	char *err,
-	char *transp
-  )
+static void printerr(char *err, char *transp)
 {
 	f_print(fout, "\t\tsvcerr_%s(%s);\n", err, transp);
 }
 
-static void
-printif(
-	char *proc,
-	char *transp,
-	char *prefix,
-	char *arg
-  )
+static void printif(char *proc, char *transp, char *prefix, char *arg)
 {
 	f_print(fout, "\tif (!svc_%s(%s, xdr_%s, %s%s)) {\n",
 		proc, transp, arg, prefix, arg);
 }
 
-int
-nullproc(
-	proc_list *proc
-  )
+int nullproc(proc_list *proc)
 {
 	for (; proc != NULL; proc = proc->next) {
 		if (streq(proc->proc_num, "0")) {
-			return (1);
+			return 1;
 		}
 	}
-	return (0);
+	return 0;
 }

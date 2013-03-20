@@ -132,7 +132,7 @@ bool_t xdr_u_int(XDR *xdrs,	u_int *up)
 /*
  * XDR hyper integers
  */
-bool_t xdr_u_hyper(register XDR *xdrs, unsigned hyper *lp)
+bool_t xdr_u_hyper(XDR *xdrs, unsigned hyper *lp)
 {
 	if (xdrs->x_op == XDR_ENCODE) {
 		unsigned long l;
@@ -168,17 +168,17 @@ bool_t xdr_u_hyper(register XDR *xdrs, unsigned hyper *lp)
 	return FALSE;
 }
 
-bool_t xdr_hyper(register XDR *xdrs, hyper *lp)
+bool_t xdr_hyper(XDR *xdrs, hyper *lp)
 {
 	return xdr_u_hyper(xdrs, lp);
 }
 
-bool_t xdr_int64_t(register XDR *xdrs, hyper *lp)
+bool_t xdr_int64_t(XDR *xdrs, hyper *lp)
 {
 	return xdr_u_hyper(xdrs, lp);
 }
 
-bool_t xdr_uint64_t(register XDR *xdrs,	hyper *lp)
+bool_t xdr_uint64_t(XDR *xdrs,	hyper *lp)
 {
 	return xdr_u_hyper(xdrs, lp);
 }
@@ -189,7 +189,7 @@ bool_t xdr_uint64_t(register XDR *xdrs,	hyper *lp)
  * XDR long integers
  * same as xdr_u_long - open coded to save a proc call!
  */
-bool_t xdr_long(register XDR *xdrs,	long *lp)
+bool_t xdr_long(XDR *xdrs,	long *lp)
 {
 	if (xdrs->x_op == XDR_ENCODE)
 		return XDR_PUTLONG(xdrs, lp);
@@ -203,12 +203,12 @@ bool_t xdr_long(register XDR *xdrs,	long *lp)
 	return FALSE;
 }
 
-bool_t xdr_uint32_t(register XDR *xdrs,	long *lp)
+bool_t xdr_uint32_t(XDR *xdrs,	long *lp)
 {
 	return xdr_u_long(xdrs, lp);
 }
 
-bool_t xdr_int32_t(register XDR *xdrs, long *lp)
+bool_t xdr_int32_t(XDR *xdrs, long *lp)
 {
 	return xdr_long(xdrs, lp);
 }
@@ -218,7 +218,7 @@ bool_t xdr_int32_t(register XDR *xdrs, long *lp)
  * XDR unsigned long integers
  * same as xdr_long - open coded to save a proc call!
  */
-bool_t xdr_u_long(register XDR *xdrs,	u_long *ulp)
+bool_t xdr_u_long(XDR *xdrs,	u_long *ulp)
 {
 	if (xdrs->x_op == XDR_DECODE)
 		return XDR_GETLONG(xdrs, (long *)ulp);
@@ -232,7 +232,7 @@ bool_t xdr_u_long(register XDR *xdrs,	u_long *ulp)
 /*
  * XDR short integers
  */
-bool_t xdr_short(register XDR *xdrs, short *sp)
+bool_t xdr_short(XDR *xdrs, short *sp)
 {
 	long l;
 
@@ -258,7 +258,7 @@ bool_t xdr_short(register XDR *xdrs, short *sp)
 /*
  * XDR unsigned short integers
  */
-bool_t xdr_u_short(register XDR *xdrs, u_short *usp)
+bool_t xdr_u_short(XDR *xdrs, u_short *usp)
 {
 	u_long l;
 
@@ -315,7 +315,7 @@ bool_t xdr_u_char(XDR *xdrs, char *cp)
 /*
  * XDR booleans
  */
-bool_t xdr_bool(register XDR *xdrs,	bool_t *bp)
+bool_t xdr_bool(XDR *xdrs,	bool_t *bp)
 {
 	long lb;
 
@@ -362,9 +362,9 @@ bool_t xdr_enum(XDR *xdrs, enum_t *ep)
  * Allows the specification of a fixed size sequence of opaque bytes.
  * cp points to the opaque object and cnt gives the byte length.
  */
-bool_t xdr_opaque(register XDR *xdrs,	caddr_t cp,	register u_int cnt)
+bool_t xdr_opaque(XDR *xdrs,	caddr_t cp,	u_int cnt)
 {
-	register u_int rndup;
+	u_int rndup;
 	static crud[BYTES_PER_XDR_UNIT];
 
 	/*
@@ -410,10 +410,10 @@ bool_t xdr_opaque(register XDR *xdrs,	caddr_t cp,	register u_int cnt)
  * *cpp is a pointer to the bytes, *sizep is the count.
  * If *cpp is NULL maxsize bytes are allocated
  */
-bool_t xdr_bytes(register XDR *xdrs, char **cpp, register u_int *sizep,	u_int maxsize)
+bool_t xdr_bytes(XDR *xdrs, char **cpp, u_int *sizep,	u_int maxsize)
 {
-	register char *sp = *cpp;  /* sp is the actual string pointer */
-	register u_int nodesize;
+	char *sp = *cpp;  /* sp is the actual string pointer */
+	u_int nodesize;
 
 	/*
 	 * first deal with the length since xdr bytes are counted
@@ -480,14 +480,14 @@ bool_t xdr_netobj(XDR *xdrs, struct netobj *np)
  * routine may be called.
  * If there is no specific or default routine an error is returned.
  */
-bool_t xdr_union(register XDR *xdrs,
+bool_t xdr_union(XDR *xdrs,
   enum_t *dscmp,	/* enum to decide which arm to work on */
 	char *unp,	/* the union itself */
 	struct xdr_discrim *choices, /* [value, xdr proc] for each arm */
 	xdrproc_t dfault	/* default xdr routine */
   )
 {
-	register enum_t dscm;
+	enum_t dscm;
 
 	/*
 	 * we deal with the discriminator;  it's an enum
@@ -528,9 +528,9 @@ bool_t xdr_union(register XDR *xdrs,
  * storage is allocated.  The last parameter is the max allowed length
  * of the string as specified by a protocol.
  */
-bool_t xdr_string(register XDR *xdrs,	char **cpp,	u_int maxsize)
+bool_t xdr_string(XDR *xdrs,	char **cpp,	u_int maxsize)
 {
-	register char *sp = *cpp;  /* sp is the actual string pointer */
+	char *sp = *cpp;  /* sp is the actual string pointer */
 	u_int size;
 	u_int nodesize;
 

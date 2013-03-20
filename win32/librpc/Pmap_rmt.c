@@ -89,7 +89,7 @@ enum clnt_stat pmap_rmtcall(struct sockaddr_in *addr,	u_long prog, u_long vers, 
 	                          caddr_t argsp, xdrproc_t xdrres, caddr_t resp, struct timeval tout,	u_long *port_ptr)
 {
 	int socket = -1;
-	register CLIENT *client;
+	CLIENT *client;
 	struct rmtcallargs a;
 	struct rmtcallres r;
 	enum clnt_stat stat;
@@ -125,7 +125,7 @@ enum clnt_stat pmap_rmtcall(struct sockaddr_in *addr,	u_long prog, u_long vers, 
  * XDR remote call arguments
  * written for XDR_ENCODE direction only
  */
-bool_t xdr_rmtcall_args(register XDR *xdrs,	register struct rmtcallargs *cap)
+bool_t xdr_rmtcall_args(XDR *xdrs,	struct rmtcallargs *cap)
 {
 	u_int lenposition, argposition, position;
 
@@ -153,7 +153,7 @@ bool_t xdr_rmtcall_args(register XDR *xdrs,	register struct rmtcallargs *cap)
  * XDR remote call results
  * written for XDR_DECODE direction only
  */
-bool_t xdr_rmtcallres(register XDR *xdrs,	register struct rmtcallres *crp)
+bool_t xdr_rmtcallres(XDR *xdrs,	struct rmtcallres *crp)
 {
 	caddr_t port_ptr;
 
@@ -240,15 +240,15 @@ clnt_broadcast(
 	enum clnt_stat stat;
 	AUTH *unix_auth = authunix_create_default();
 	XDR xdr_stream;
-	register XDR *xdrs = &xdr_stream;
+	XDR *xdrs = &xdr_stream;
 	int outlen, inlen, fromlen, nets;
-	register SOCKET sock;
+	SOCKET sock;
 	int on = 1;
 	fd_set mask;
 	fd_set readfds;
-	register int i;
+	int i;
 	bool_t done = FALSE;
-	register u_long xid;
+	u_long xid;
 	u_long port;
 	struct in_addr addrs[20];
 	struct sockaddr_in baddr, raddr; /* broadcast and response addresses */

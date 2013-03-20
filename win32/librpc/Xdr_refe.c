@@ -81,14 +81,14 @@ static char sccsid[] = "@(#)xdr_reference.c 1.11 87/08/11 SMI";
  * size is the sizeof the referneced structure.
  * proc is the routine to handle the referenced structure.
  */
-bool_t xdr_reference(register XDR *xdrs,
+bool_t xdr_reference(XDR *xdrs,
 	caddr_t *pp,		/* the pointer to work on */
 	u_int size,		/* size of the object pointed to */
 	xdrproc_t proc		/* xdr routine to handle the object */
   )
 {
-	register caddr_t loc = *pp;
-	register bool_t stat;
+	caddr_t loc = *pp;
+	bool_t stat;
 
 	if (loc == NULL)
 		switch (xdrs->x_op) {
@@ -139,7 +139,7 @@ bool_t xdr_reference(register XDR *xdrs,
  * > xdr_obj: routine to XDR an object.
  *
  */
-bool_t xdr_pointer(register XDR *xdrs, char **objpp, u_int obj_size, xdrproc_t xdr_obj)
+bool_t xdr_pointer(XDR *xdrs, char **objpp, u_int obj_size, xdrproc_t xdr_obj)
 {
 	bool_t more_data;
 

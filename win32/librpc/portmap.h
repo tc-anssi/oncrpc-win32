@@ -1,17 +1,11 @@
+#ifndef __PORTMAP_HEADER__
+#define __PORTMAP_HEADER__
+
 struct pmaplist *pmaplist;
 
-static struct pmaplist *
-find_service(
-  u_long prog,
-  u_long vers,
-  u_long prot
-  );
+static struct pmaplist *find_service(u_long prog, u_long vers, u_long prot);
 
-void
-reg_service(
-  struct svc_req *rqstp,
-  SVCXPRT *xprt
-  );
+void reg_service(struct svc_req *rqstp, SVCXPRT *xprt);
 
 typedef struct encap_parms {
   u_long arglen;
@@ -26,38 +20,16 @@ typedef struct rmtcallargs {
   struct encap_parms rmt_args;
 } rmtcallargs_t;
 
-static bool_t
-xdr_encap_parms(
-  XDR *xdrs,
-  struct encap_parms *epp
-  );
+static bool_t xdr_encap_parms(XDR *xdrs, struct encap_parms *epp);
 
-static bool_t
-xdr_rmtcall_args(
-  register XDR *xdrs,
-  register struct rmtcallargs *cap
-  );
+static bool_t xdr_rmtcall_args(XDR *xdrs, struct rmtcallargs *cap);
 
-static bool_t
-xdr_rmtcall_result(
-  register XDR *xdrs,
-  register struct rmtcallargs *cap
-  );
+static bool_t xdr_rmtcall_result(XDR *xdrs, struct rmtcallargs *cap);
 
-static bool_t
-xdr_opaque_parms(
-  XDR *xdrs,
-  struct rmtcallargs *cap
-  );
+static bool_t xdr_opaque_parms(XDR *xdrs, struct rmtcallargs *cap);
 
-static bool_t
-xdr_len_opaque_parms(
-  register XDR *xdrs,
-  struct rmtcallargs *cap
-  );
+static bool_t xdr_len_opaque_parms(XDR *xdrs, struct rmtcallargs *cap);
 
-static void
-callit(
-  struct svc_req *rqstp,
-  SVCXPRT *xprt
-  );
+static void callit(struct svc_req *rqstp, SVCXPRT *xprt);
+
+#endif //__PORTMAP_HEADER__

@@ -194,7 +194,7 @@ extern ONCRPCAPI struct opaque_auth _null_auth;
  *	int *aup_gids;
  */
 ONCRPCAPI AUTH *authunix_create(char *machname, int uid, int gid,
-                                register int len, int *aup_gids);
+                                int len, int *aup_gids);
 ONCRPCAPI AUTH *authunix_create_default();	/* takes no parameters */
 ONCRPCAPI AUTH *authnone_create();		/* takes no parameters */
 ONCRPCAPI AUTH *authdes_create();

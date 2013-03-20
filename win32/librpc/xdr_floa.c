@@ -71,7 +71,7 @@ static char sccsid[] = "@(#)xdr_float.c 1.12 87/08/11 Copyr 1984 Sun Micro";
 
 #include "all_oncrpc.h"
 
-bool_t xdr_float(register XDR *xdrs, register float *fp)
+bool_t xdr_float(XDR *xdrs, float *fp)
 {
 
 #if defined(WIN32) && defined(_AMD64_)
@@ -92,9 +92,9 @@ bool_t xdr_float(register XDR *xdrs, register float *fp)
 	return FALSE;
 }
 
-bool_t xdr_double(register XDR *xdrs,	double *dp)
+bool_t xdr_double(XDR *xdrs,	double *dp)
 {
-	register long *lp;
+	long *lp;
 
   switch (xdrs->x_op) {
 

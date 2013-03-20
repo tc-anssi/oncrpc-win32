@@ -179,7 +179,7 @@ struct svc_req {
  *	u_long prog;
  *	u_long vers;
  *	void (*dispatch)();
- *	int protocol;  /* like TCP or UDP, zero means do not register 
+ *	int protocol;  /* like TCP or UDP, zero means do not 
  */
 ONCRPCAPI bool_t	svc_register(	SVCXPRT *xprt, u_long prog, u_long vers, void (*dispatch)(), int protocol);
 
@@ -237,14 +237,14 @@ ONCRPCAPI void	xprt_unregister(SVCXPRT *xprt);
  * deadlock the caller and server processes!
  */
 
-ONCRPCAPI bool_t	svc_sendreply(register SVCXPRT *xprt, xdrproc_t xdr_results, caddr_t xdr_location);
-ONCRPCAPI void	svcerr_decode(register SVCXPRT *xprt);
+ONCRPCAPI bool_t	svc_sendreply(SVCXPRT *xprt, xdrproc_t xdr_results, caddr_t xdr_location);
+ONCRPCAPI void	svcerr_decode(SVCXPRT *xprt);
 ONCRPCAPI void	svcerr_weakauth(SVCXPRT *xprt);
-ONCRPCAPI void	svcerr_noproc(register SVCXPRT *xprt);
-ONCRPCAPI void	svcerr_progvers(register SVCXPRT *xprt, u_long low_vers, u_long high_vers);
+ONCRPCAPI void	svcerr_noproc(SVCXPRT *xprt);
+ONCRPCAPI void	svcerr_progvers(SVCXPRT *xprt, u_long low_vers, u_long high_vers);
 ONCRPCAPI void	svcerr_auth(SVCXPRT *xprt, enum auth_stat why);
-ONCRPCAPI void	svcerr_noprog(register SVCXPRT *xprt);
-ONCRPCAPI void	svcerr_systemerr(register SVCXPRT *xprt);
+ONCRPCAPI void	svcerr_noprog(SVCXPRT *xprt);
+ONCRPCAPI void	svcerr_systemerr(SVCXPRT *xprt);
     
 /*
  * Lowest level dispatching -OR- who owns this process anyway.
@@ -308,11 +308,11 @@ ONCRPCAPI SVCXPRT *svcraw_create();
  * Udp based rpc.
  */
 ONCRPCAPI SVCXPRT *svcudp_create(SOCKET sock);
-ONCRPCAPI SVCXPRT *svcudp_bufcreate(register SOCKET sock, u_int sendsz, u_int recvsz);
+ONCRPCAPI SVCXPRT *svcudp_bufcreate(SOCKET sock, u_int sendsz, u_int recvsz);
 
 /*
  * Tcp based rpc.
  */
-ONCRPCAPI SVCXPRT *svctcp_create(register SOCKET sock, u_int sendsize, u_int recvsize);
+ONCRPCAPI SVCXPRT *svctcp_create(SOCKET sock, u_int sendsize, u_int recvsize);
 
 #endif /* __SVC_HEADER__ */

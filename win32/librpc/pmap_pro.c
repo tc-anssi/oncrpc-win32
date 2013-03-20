@@ -106,7 +106,7 @@ static char sccsid[] = "@(#)pmap_prot2.c 1.3 87/08/11 Copyr 1984 Sun Micro";
  * the net, yet is the data that the pointer points to which is interesting;
  * this sounds like a job for xdr_reference!
  */
-bool_t xdr_pmaplist(register XDR *xdrs,	register struct pmaplist **rp)
+bool_t xdr_pmaplist(XDR *xdrs,	struct pmaplist **rp)
 {
 	/*
 	 * more_elements is pre-computed in case the direction is
@@ -114,8 +114,8 @@ bool_t xdr_pmaplist(register XDR *xdrs,	register struct pmaplist **rp)
 	 * xdr_bool when the direction is XDR_DECODE.
 	 */
 	bool_t more_elements;
-	register int freeing = (xdrs->x_op == XDR_FREE);
-	register struct pmaplist **next;
+	int freeing = (xdrs->x_op == XDR_FREE);
+	struct pmaplist **next;
 
 	while (TRUE) {
 		more_elements = (bool_t)(*rp != NULL);

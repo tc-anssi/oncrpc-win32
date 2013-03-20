@@ -97,7 +97,7 @@ static struct	xdr_ops xdrmem_ops = {
  * The procedure xdrmem_create initializes a stream descriptor for a
  * memory buffer.  
  */
-void xdrmem_create(register XDR *xdrs, caddr_t addr, u_int size, enum xdr_op op)
+void xdrmem_create(XDR *xdrs, caddr_t addr, u_int size, enum xdr_op op)
 {
 	xdrs->x_op = op;
 	xdrs->x_ops = &xdrmem_ops;
@@ -110,7 +110,7 @@ static void xdrmem_destroy(/*xdrs*/)
 {
 }
 
-static bool_t xdrmem_getlong(register XDR *xdrs, long *lp)
+static bool_t xdrmem_getlong(XDR *xdrs, long *lp)
 {
 	if ((xdrs->x_handy -= sizeof(long)) < 0)
 		return FALSE;
@@ -119,7 +119,7 @@ static bool_t xdrmem_getlong(register XDR *xdrs, long *lp)
 	return TRUE;
 }
 
-static bool_t xdrmem_putlong(register XDR *xdrs, long *lp)
+static bool_t xdrmem_putlong(XDR *xdrs, long *lp)
 {
 	if ((xdrs->x_handy -= sizeof(long)) < 0)
 		return FALSE;
@@ -128,7 +128,7 @@ static bool_t xdrmem_putlong(register XDR *xdrs, long *lp)
 	return TRUE;
 }
 
-static bool_t xdrmem_getbytes(register XDR *xdrs,	caddr_t addr,	register u_int len)
+static bool_t xdrmem_getbytes(XDR *xdrs,	caddr_t addr,	u_int len)
 {
 	if ((xdrs->x_handy -= len) < 0)
 		return FALSE;
@@ -137,7 +137,7 @@ static bool_t xdrmem_getbytes(register XDR *xdrs,	caddr_t addr,	register u_int l
 	return TRUE;
 }
 
-static bool_t xdrmem_putbytes(register XDR *xdrs,	caddr_t addr,	register u_int len)
+static bool_t xdrmem_putbytes(XDR *xdrs,	caddr_t addr,	u_int len)
 {
 	if ((xdrs->x_handy -= len) < 0)
 		return FALSE;
@@ -146,15 +146,15 @@ static bool_t xdrmem_putbytes(register XDR *xdrs,	caddr_t addr,	register u_int l
 	return TRUE;
 }
 
-static u_int xdrmem_getpos(register XDR *xdrs)
+static u_int xdrmem_getpos(XDR *xdrs)
 {
 	return ((u_int)xdrs->x_private - (u_int)xdrs->x_base);
 }
 
-static bool_t xdrmem_setpos(register XDR *xdrs,	u_int pos)
+static bool_t xdrmem_setpos(XDR *xdrs,	u_int pos)
 {
-	register caddr_t newaddr = xdrs->x_base + pos;
-	register caddr_t lastaddr = xdrs->x_private + xdrs->x_handy;
+	caddr_t newaddr = xdrs->x_base + pos;
+	caddr_t lastaddr = xdrs->x_private + xdrs->x_handy;
 
 	if ((long)newaddr > (long)lastaddr)
 		return FALSE;
@@ -163,7 +163,7 @@ static bool_t xdrmem_setpos(register XDR *xdrs,	u_int pos)
 	return TRUE;
 }
 
-static long *xdrmem_inline(register XDR *xdrs, int len)
+static long *xdrmem_inline(XDR *xdrs, int len)
 {
 	long *buf = 0;
 

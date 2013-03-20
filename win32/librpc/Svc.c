@@ -106,7 +106,7 @@ static struct svc_callout *svc_find();
  */
 void xprt_register(SVCXPRT *xprt)
 {
-	register SOCKET sock = xprt->xp_sock;
+	SOCKET sock = xprt->xp_sock;
 
 #ifdef FD_SETSIZE
 	if (xports == NULL) {
@@ -154,7 +154,7 @@ void xprt_register(SVCXPRT *xprt)
  */
 void xprt_unregister(SVCXPRT *xprt)
 { 
-	register SOCKET sock = xprt->xp_sock;
+	SOCKET sock = xprt->xp_sock;
 
 
 #ifdef WIN32
@@ -180,7 +180,7 @@ void xprt_unregister(SVCXPRT *xprt)
 bool_t svc_register(SVCXPRT *xprt, u_long prog,	u_long vers, void (*dispatch)(), int protocol)
 {
 	struct svc_callout *prev;
-	register struct svc_callout *s;
+	struct svc_callout *s;
 
 	if ((s = svc_find(prog, vers, &prev)) != NULL_SVC) {
 		if (s->sc_dispatch == dispatch)
@@ -197,7 +197,7 @@ bool_t svc_register(SVCXPRT *xprt, u_long prog,	u_long vers, void (*dispatch)(),
 	s->sc_next = svc_head;
 	svc_head = s;
 pmap_it:
-	/* now register the information with the local binder service */
+	/* now the information with the local binder service */
 	if (protocol) {
 		return (pmap_set(prog, vers, protocol, xprt->xp_port));
 	}
@@ -210,7 +210,7 @@ pmap_it:
 void svc_unregister(u_long prog, u_long vers)
 {
 	struct svc_callout *prev;
-	register struct svc_callout *s;
+	struct svc_callout *s;
 
 	if ((s = svc_find(prog, vers, &prev)) == NULL_SVC)
 		return;
@@ -231,7 +231,7 @@ void svc_unregister(u_long prog, u_long vers)
  */
 static struct svc_callout *svc_find(u_long prog, u_long vers,	struct svc_callout **prev)
 {
-	register struct svc_callout *s, *p;
+	struct svc_callout *s, *p;
 
 	p = NULL_SVC;
 	for (s = svc_head; s != NULL_SVC; s = s->sc_next) {
@@ -249,7 +249,7 @@ done:
 /*
  * Send a reply to an rpc request
  */
-bool_t svc_sendreply(register SVCXPRT *xprt, xdrproc_t xdr_results,	caddr_t xdr_location)
+bool_t svc_sendreply(SVCXPRT *xprt, xdrproc_t xdr_results,	caddr_t xdr_location)
 {
 	struct rpc_msg rply; 
 
@@ -265,7 +265,7 @@ bool_t svc_sendreply(register SVCXPRT *xprt, xdrproc_t xdr_results,	caddr_t xdr_
 /*
  * No procedure error reply
  */
-void svcerr_noproc(register SVCXPRT *xprt)
+void svcerr_noproc(SVCXPRT *xprt)
 {
 	struct rpc_msg rply;
 
@@ -279,7 +279,7 @@ void svcerr_noproc(register SVCXPRT *xprt)
 /*
  * Can't decode args error reply
  */
-void svcerr_decode(register SVCXPRT *xprt)
+void svcerr_decode(SVCXPRT *xprt)
 {
 	struct rpc_msg rply; 
 
@@ -293,7 +293,7 @@ void svcerr_decode(register SVCXPRT *xprt)
 /*
  * Some system error
  */
-void svcerr_systemerr(register SVCXPRT *xprt)
+void svcerr_systemerr(SVCXPRT *xprt)
 {
 	struct rpc_msg rply; 
 
@@ -329,7 +329,7 @@ void svcerr_weakauth(SVCXPRT *xprt)
 /*
  * Program unavailable error reply
  */
-void svcerr_noprog(register SVCXPRT *xprt)
+void svcerr_noprog(SVCXPRT *xprt)
 {
 	struct rpc_msg rply;  
 
@@ -343,7 +343,7 @@ void svcerr_noprog(register SVCXPRT *xprt)
 /*
  * Program version mismatch error reply
  */
-void svcerr_progvers(register SVCXPRT *xprt, u_long low_vers,	u_long high_vers)
+void svcerr_progvers(SVCXPRT *xprt, u_long low_vers,	u_long high_vers)
 {
 	struct rpc_msg rply;
 
@@ -405,14 +405,14 @@ void svc_getreqset(fd_set *readfds)
 	u_long low_vers;
 	u_long high_vers;
 	struct svc_req r;
-	register SVCXPRT *xprt;
+	SVCXPRT *xprt;
 #ifndef WIN32
-	register u_long mask;
-	register u_long *maskp;
-	register int setsize;
-	register int bit;
+	u_long mask;
+	u_long *maskp;
+	int setsize;
+	int bit;
 #endif
-	register SOCKET sock;
+	SOCKET sock;
 	char cred_area[2*MAX_AUTH_BYTES + RQCRED_SIZE];
 	int i;
 
@@ -439,7 +439,7 @@ void svc_getreqset(fd_set *readfds)
 			if (SVC_RECV(xprt, &msg)) {
 
 				/* now find the exported program and call it */
-				register struct svc_callout *s;
+				struct svc_callout *s;
 				enum auth_stat why;
 
 				r.rq_xprt = xprt;

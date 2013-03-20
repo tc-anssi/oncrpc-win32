@@ -81,7 +81,7 @@ static struct callrpc_private {
 
 int callrpc(char *host, int prognum, int versnum, int procnum, xdrproc_t inproc, char *in, xdrproc_t outproc,	char *out)
 {
-	register struct callrpc_private *crp = callrpc_private;
+	struct callrpc_private *crp = callrpc_private;
 	struct sockaddr_in server_addr;
 	enum clnt_stat clnt_stat;
 	struct hostent *hp;

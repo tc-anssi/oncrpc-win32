@@ -98,7 +98,7 @@ static struct xp_ops server_ops = {
 
 SVCXPRT *svcraw_create()
 {
-	register struct svcraw_private *srp = svcraw_private;
+	struct svcraw_private *srp = svcraw_private;
 
 	if (srp == 0) {
 		srp = (struct svcraw_private *)calloc(1, sizeof (*srp));
@@ -120,8 +120,8 @@ static enum xprt_stat svcraw_stat()
 
 static bool_t svcraw_recv(SVCXPRT *xprt, struct rpc_msg *msg)
 {
-	register struct svcraw_private *srp = svcraw_private;
-	register XDR *xdrs;
+	struct svcraw_private *srp = svcraw_private;
+	XDR *xdrs;
 
 	if (srp == 0)
 		return 0;
@@ -135,8 +135,8 @@ static bool_t svcraw_recv(SVCXPRT *xprt, struct rpc_msg *msg)
 
 static bool_t svcraw_reply(SVCXPRT *xprt,	struct rpc_msg *msg)
 {
-	register struct svcraw_private *srp = svcraw_private;
-	register XDR *xdrs;
+	struct svcraw_private *srp = svcraw_private;
+	XDR *xdrs;
 
 	if (srp == 0)
 		return FALSE;
@@ -151,7 +151,7 @@ static bool_t svcraw_reply(SVCXPRT *xprt,	struct rpc_msg *msg)
 
 static bool_t svcraw_getargs(SVCXPRT *xprt,	xdrproc_t xdr_args,	caddr_t args_ptr)
 {
-	register struct svcraw_private *srp = svcraw_private;
+	struct svcraw_private *srp = svcraw_private;
 
 	if (srp == 0)
 		return FALSE;
@@ -160,8 +160,8 @@ static bool_t svcraw_getargs(SVCXPRT *xprt,	xdrproc_t xdr_args,	caddr_t args_ptr
 
 static bool_t svcraw_freeargs(SVCXPRT *xprt, xdrproc_t xdr_args, caddr_t args_ptr)
 { 
-	register struct svcraw_private *srp = svcraw_private;
-	register XDR *xdrs;
+	struct svcraw_private *srp = svcraw_private;
+	XDR *xdrs;
 
 	if (srp == 0)
 		return FALSE;

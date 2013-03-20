@@ -87,8 +87,8 @@
 ONCRPCAPI int rpc_nt_init(void);
 ONCRPCAPI int rpc_nt_exit(void);
 ONCRPCAPI void nt_rpc_report(LPTSTR lpszMsg);
-ONCRPCAPI int xdr_opaque_auth(register XDR *xdrs,
-                              register struct opaque_auth *ap);
+ONCRPCAPI int xdr_opaque_auth(XDR *xdrs,
+                              struct opaque_auth *ap);
 
 #else  /* not WIN32 */ 
 #include <rpc/types.h>		/* some typedefs */

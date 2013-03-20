@@ -78,8 +78,7 @@ static char sccsid[] = "@(#)rpc_clntout.c 1.2 87/06/24 (C) 1987 SMI";
 
 #define DEFAULT_TIMEOUT 25	/* in seconds */
 
-void
-write_stubs()
+void write_stubs()
 {
 	list *l;
 	definition *def;
@@ -97,10 +96,7 @@ write_stubs()
 }
 
 
-static void
-write_program(
-	definition *def
-  )
+static void write_program(definition *def)
 {
 	version_list *vp;
 	proc_list *proc;
@@ -123,22 +119,16 @@ write_program(
 	}
 }
 
-static char *
-ampr(
-	char *type
-  )
+static char *ampr(char *type)
 {
 	if (isvectordef(type, REL_ALIAS)) {
-		return ("");
+		return "";
 	} else {
-		return ("&");
+		return "&";
 	}
 }
 
-static void
-printbody(
-	proc_list *proc
-  )
+static void printbody(proc_list *proc)
 {
 	f_print(fout, "\tstatic ");
 	if (streq(proc->res_type, "void")) {

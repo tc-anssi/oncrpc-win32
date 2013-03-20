@@ -116,19 +116,13 @@ get_definition()
 	return (defp);
 }
 
-static void
-isdefined(
-	definition *defp
-  )
+static void isdefined(definition *defp)
 {
 	STOREVAL(&defined, defp);
 }
 
 
-static void
-def_struct(
-	definition *defp
-  )
+static void def_struct(definition *defp)
 {
 	token tok;
 	declaration dec;
@@ -154,10 +148,7 @@ def_struct(
 	*tailp = NULL;
 }
 
-static void
-def_program(
-	definition *defp
-  )
+static void def_program(definition *defp)
 {
 	token tok;
 	version_list *vlist;
@@ -215,10 +206,7 @@ def_program(
 	*vtailp = NULL;
 }
 
-static void
-def_enum(
-	definition *defp
-  )
+static void def_enum(definition *defp)
 {
 	token tok;
 	enumval_list *elist;
@@ -246,10 +234,7 @@ def_enum(
 	*tailp = NULL;
 }
 
-static void
-def_const(
-	definition *defp
-  )
+static void def_const(definition *defp)
 {
 	token tok;
 
@@ -261,10 +246,7 @@ def_const(
 	defp->def.co = tok.str;
 }
 
-static void
-def_union(
-	definition *defp
-  )
+static void def_union(definition *defp)
 {
 	token tok;
 	declaration dec;
@@ -308,10 +290,7 @@ def_union(
 }
 
 
-static void
-def_typedef(
-	definition *defp
-  )
+static void def_typedef(definition *defp)
 {
 	declaration dec;
 
@@ -325,11 +304,7 @@ def_typedef(
 }
 
 
-static void
-get_declaration(
-	declaration *dec,
-	defkind dkind
-  )
+static void get_declaration(declaration *dec,	defkind dkind)
 {
 	token tok;
 
@@ -377,12 +352,7 @@ get_declaration(
 }
 
 
-static void
-get_type(
-	char **prefixp,
-	char **typep,
-	defkind dkind
-  )
+static void get_type(char **prefixp, char **typep, defkind dkind)
 {
 	token tok;
 
@@ -435,10 +405,7 @@ get_type(
 }
 
 
-static void
-unsigned_dec(
-	char **typep
-  )
+static void unsigned_dec(char **typep)
 {
 	token tok;
 

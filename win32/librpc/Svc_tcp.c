@@ -154,11 +154,11 @@ struct tcp_conn {  /* kept in xprt->xp_p1 */
  * how big the send and receive buffers are via the second and third parms;
  * 0 => use the system default.
  */
-SVCXPRT *svctcp_create(register SOCKET sock, u_int sendsize, u_int recvsize)
+SVCXPRT *svctcp_create(SOCKET sock, u_int sendsize, u_int recvsize)
 {
 	bool_t madesock = FALSE;
-	register SVCXPRT *xprt;
-	register struct tcp_rendezvous *r;
+	SVCXPRT *xprt;
+	struct tcp_rendezvous *r;
 	struct sockaddr_in addr;
 	int len = sizeof(struct sockaddr_in);
 
@@ -231,8 +231,8 @@ SVCXPRT *svcfd_create(int fd,	u_int sendsize,	u_int recvsize)
 
 static SVCXPRT *makefd_xprt(SOCKET fd, u_int sendsize, u_int recvsize)
 {
-	register SVCXPRT *xprt;
-	register struct tcp_conn *cd;
+	SVCXPRT *xprt;
+	struct tcp_conn *cd;
 
 	xprt = (SVCXPRT *)mem_alloc(sizeof(SVCXPRT));
 	if (xprt == (SVCXPRT *)NULL) {
@@ -269,7 +269,7 @@ static SVCXPRT *makefd_xprt(SOCKET fd, u_int sendsize, u_int recvsize)
 	return xprt;
 }
 
-static bool_t rendezvous_request(register SVCXPRT *xprt)
+static bool_t rendezvous_request(SVCXPRT *xprt)
 {
 	SOCKET sock;
 	struct tcp_rendezvous *r;
@@ -303,9 +303,9 @@ static enum xprt_stat rendezvous_stat()
 	return XPRT_IDLE;
 }
 
-static void svctcp_destroy(register SVCXPRT *xprt)
+static void svctcp_destroy(SVCXPRT *xprt)
 {
-	register struct tcp_conn *cd = (struct tcp_conn *)xprt->xp_p1;
+	struct tcp_conn *cd = (struct tcp_conn *)xprt->xp_p1;
 
 	xprt_unregister(xprt);
 #ifdef WIN32
@@ -335,9 +335,9 @@ static struct timeval wait_per_try = { 35, 0 };
  * any error is fatal and the connection is closed.
  * (And a read of zero bytes is a half closed stream => error.)
  */
-static int readtcp(register SVCXPRT *xprt, caddr_t buf,	register int len)
+static int readtcp(SVCXPRT *xprt, caddr_t buf,	int len)
 {
-	register SOCKET sock = xprt->xp_sock;
+	SOCKET sock = xprt->xp_sock;
 	fd_set mask;
 	fd_set readfds;
 
@@ -377,9 +377,9 @@ fatal_err:
  * writes data to the tcp connection.
  * Any error is fatal and the connection is closed.
  */
-static int writetcp(register SVCXPRT *xprt,	caddr_t buf, int len)
+static int writetcp(SVCXPRT *xprt,	caddr_t buf, int len)
 {
-	register int i, cnt;
+	int i, cnt;
 
 	for (cnt = len; cnt > 0; cnt -= i, buf += i) {
 #ifdef WIN32
@@ -397,7 +397,7 @@ static int writetcp(register SVCXPRT *xprt,	caddr_t buf, int len)
 
 static enum xprt_stat svctcp_stat(SVCXPRT *xprt)
 {
-	register struct tcp_conn *cd =
+	struct tcp_conn *cd =
 	    (struct tcp_conn *)(xprt->xp_p1);
 
 	if (cd->strm_stat == XPRT_DIED)
@@ -407,11 +407,11 @@ static enum xprt_stat svctcp_stat(SVCXPRT *xprt)
 	return XPRT_IDLE;
 }
 
-static bool_t svctcp_recv(SVCXPRT *xprt, register struct rpc_msg *msg)
+static bool_t svctcp_recv(SVCXPRT *xprt, struct rpc_msg *msg)
 {
-	register struct tcp_conn *cd =
+	struct tcp_conn *cd =
 	    (struct tcp_conn *)(xprt->xp_p1);
-	register XDR *xdrs = &(cd->xdrs);
+	XDR *xdrs = &(cd->xdrs);
 
 	xdrs->x_op = XDR_DECODE;
 	(void)xdrrec_skiprecord(xdrs);
@@ -429,19 +429,19 @@ static bool_t svctcp_getargs(SVCXPRT *xprt,	xdrproc_t xdr_args,	caddr_t args_ptr
 
 static bool_t svctcp_freeargs(SVCXPRT *xprt, xdrproc_t xdr_args, caddr_t args_ptr)
 {
-	register XDR *xdrs =
+	XDR *xdrs =
 	    &(((struct tcp_conn *)(xprt->xp_p1))->xdrs);
 
 	xdrs->x_op = XDR_FREE;
 	return ((*xdr_args)(xdrs, args_ptr));
 }
 
-static bool_t svctcp_reply(SVCXPRT *xprt,	register struct rpc_msg *msg)
+static bool_t svctcp_reply(SVCXPRT *xprt,	struct rpc_msg *msg)
 {
-	register struct tcp_conn *cd =
+	struct tcp_conn *cd =
 	    (struct tcp_conn *)(xprt->xp_p1);
-	register XDR *xdrs = &(cd->xdrs);
-	register bool_t stat;
+	XDR *xdrs = &(cd->xdrs);
+	bool_t stat;
 
 	xdrs->x_op = XDR_ENCODE;
 	msg->rm_xid = cd->x_id;

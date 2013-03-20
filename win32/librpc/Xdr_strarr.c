@@ -30,16 +30,16 @@
  * addrp is a pointer to the string pointer array, *sizep is the number of 
  * string elements. If *addrp is NULL (*sizep) char pointers are allocated.
  */
-bool_t xdr_strarray(register XDR *xdrs,
-	register char ***addrp,	/* array pointer */
+bool_t xdr_strarray(XDR *xdrs,
+	char ***addrp,	/* array pointer */
 	u_int *sizep,		    /* number of elements */
 	u_int maxsize		    /* max numberof elements */
   )
 {
-	register u_int i;
-	register char **target = *addrp;
-	register u_int c;  /* the actual element count */
-	register bool_t stat = TRUE;
+	u_int i;
+	char **target = *addrp;
+	u_int c;  /* the actual element count */
+	bool_t stat = TRUE;
 
 	/* like strings, arrays are really counted arrays */
 	if (! xdr_u_int(xdrs, sizep)) {

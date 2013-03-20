@@ -106,9 +106,9 @@ int registerrpc(u_long prognum, u_long versnum, u_long procnum,	char *(*progname
 	if (!svc_register(transp, (u_long)prognum, (u_long)versnum,
 	    universal, IPPROTO_UDP)) {
 #ifdef WIN32
-	    	nt_rpc_report("couldn't register prog");
+	    	nt_rpc_report("couldn't prog");
 #else
-	    	fprintf(stderr, "couldn't register prog %d vers %d\n",
+	    	fprintf(stderr, "couldn't prog %d vers %d\n",
 		    prognum, versnum);
 #endif
 		return -1;

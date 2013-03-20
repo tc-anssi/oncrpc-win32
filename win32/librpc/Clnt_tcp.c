@@ -131,10 +131,10 @@ struct ct_data {
  * NB: The rpch->cl_auth is set null authentication.  Caller may wish to set this
  * something more useful.
  */
-CLIENT *clnttcp_create(struct sockaddr_in *raddr,	u_long prog, u_long vers,	register SOCKET *sockp,	u_int sendsz,	u_int recvsz)
+CLIENT *clnttcp_create(struct sockaddr_in *raddr,	u_long prog, u_long vers,	SOCKET *sockp,	u_int sendsz,	u_int recvsz)
 {
 	CLIENT *h;
-	register struct ct_data *ct;
+	struct ct_data *ct;
 	struct timeval now;
 	struct rpc_msg call_msg;
 
@@ -272,15 +272,15 @@ fooy:
 	return (CLIENT *)NULL;
 }
 
-static enum clnt_stat clnttcp_call(register CLIENT *h, u_long proc,	xdrproc_t xdr_args,	caddr_t args_ptr,	xdrproc_t xdr_results,
+static enum clnt_stat clnttcp_call(CLIENT *h, u_long proc,	xdrproc_t xdr_args,	caddr_t args_ptr,	xdrproc_t xdr_results,
 	                                 caddr_t results_ptr,	struct timeval timeout)
 {
-	register struct ct_data *ct = (struct ct_data *) h->cl_private;
-	register XDR *xdrs = &(ct->ct_xdrs);
+	struct ct_data *ct = (struct ct_data *) h->cl_private;
+	XDR *xdrs = &(ct->ct_xdrs);
 	struct rpc_msg reply_msg;
 	u_long x_id;
 	u_long *msg_x_id = (u_long *)(ct->ct_mcall);	/* yuk */
-	register bool_t shipnow;
+	bool_t shipnow;
 	int refreshes = 2;
 
 	if (!ct->ct_waitset) {
@@ -364,7 +364,7 @@ call_again:
 
 static void clnttcp_geterr(CLIENT *h,	struct rpc_err *errp)
 {
-	register struct ct_data *ct =
+	struct ct_data *ct =
 	    (struct ct_data *) h->cl_private;
 
 	*errp = ct->ct_error;
@@ -372,8 +372,8 @@ static void clnttcp_geterr(CLIENT *h,	struct rpc_err *errp)
 
 static bool_t clnttcp_freeres(CLIENT *cl,	xdrproc_t xdr_res, caddr_t res_ptr)
 {
-	register struct ct_data *ct = (struct ct_data *)cl->cl_private;
-	register XDR *xdrs = &(ct->ct_xdrs);
+	struct ct_data *ct = (struct ct_data *)cl->cl_private;
+	XDR *xdrs = &(ct->ct_xdrs);
 
 	xdrs->x_op = XDR_FREE;
 	return ((*xdr_res)(xdrs, res_ptr));
@@ -385,7 +385,7 @@ static void clnttcp_abort()
 
 static bool_t clnttcp_control(CLIENT *cl,	int request, char *info)
 {
-	register struct ct_data *ct = (struct ct_data *)cl->cl_private;
+	struct ct_data *ct = (struct ct_data *)cl->cl_private;
 
 	switch (request) {
 	case CLSET_TIMEOUT:
@@ -407,7 +407,7 @@ static bool_t clnttcp_control(CLIENT *cl,	int request, char *info)
 
 static void clnttcp_destroy(CLIENT *h)
 {
-	register struct ct_data *ct =
+	struct ct_data *ct =
 	    (struct ct_data *) h->cl_private;
 
 	if (ct->ct_closeit) {
@@ -427,7 +427,7 @@ static void clnttcp_destroy(CLIENT *h)
  * Behaves like the system calls, read & write, but keeps some error state
  * around for the rpc level.
  */
-static int readtcp(register struct ct_data *ct,	caddr_t buf, register int len)
+static int readtcp(struct ct_data *ct,	caddr_t buf, int len)
 {
 	fd_set mask;
 	fd_set readfds;
@@ -506,7 +506,7 @@ static int readtcp(register struct ct_data *ct,	caddr_t buf, register int len)
 
 static int writetcp(struct ct_data *ct,	caddr_t buf, int len)
 {
-	register int i, cnt;
+	int i, cnt;
 
 	for (cnt = len; cnt > 0; cnt -= i, buf += i) {
 #ifdef WIN32

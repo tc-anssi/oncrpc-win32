@@ -153,15 +153,10 @@ main()
 
 
 
-static struct pmaplist *
-find_service(
-	u_long prog,
-	u_long vers,
-  u_long prot
-  )
+static struct pmaplist *find_service(u_long prog,	u_long vers, u_long prot)
 {
-	register struct pmaplist *hit = NULL;
-	register struct pmaplist *pml;
+	struct pmaplist *hit = NULL;
+	struct pmaplist *pml;
 
 	for (pml = pmaplist; pml != NULL; pml = pml->pml_next) {
 		if ((pml->pml_map.pm_prog != prog) ||
@@ -172,17 +167,10 @@ find_service(
 		    break;
 	}
 
-	return (hit);
+	return hit;
 }
 
-/* 
- * 1 OK, 0 not
- */
-void
-reg_service(
-	struct svc_req *rqstp,
-	SVCXPRT *xprt
-  )
+void reg_service(struct svc_req *rqstp,	SVCXPRT *xprt)
 {
 	struct pmap reg;
 	struct pmaplist *pml, *prevpml, *fnd;
@@ -336,68 +324,45 @@ reg_service(
  */
 #define ARGSIZE 9000
 
-static bool_t
-xdr_encap_parms(
-	XDR *xdrs,
-	struct encap_parms *epp
-  )
+static bool_t xdr_encap_parms(XDR *xdrs, struct encap_parms *epp)
 {
-
 	return (xdr_bytes(xdrs, &(epp->args), &(epp->arglen), ARGSIZE));
 }
 
-static bool_t
-xdr_rmtcall_args(
-	register XDR *xdrs,
-	register struct rmtcallargs *cap
-  )
+static bool_t xdr_rmtcall_args(XDR *xdrs,	struct rmtcallargs *cap)
 {
-
 	/* does not get a port number */
 	if (xdr_u_long(xdrs, &(cap->rmt_prog)) &&
 	    xdr_u_long(xdrs, &(cap->rmt_vers)) &&
 	    xdr_u_long(xdrs, &(cap->rmt_proc))) {
 		return (xdr_encap_parms(xdrs, &(cap->rmt_args)));
 	}
-	return (FALSE);
+	return FALSE;
 }
 
-static bool_t
-xdr_rmtcall_result(
-	register XDR *xdrs,
-	register struct rmtcallargs *cap
-  )
+static bool_t xdr_rmtcall_result(XDR *xdrs,	struct rmtcallargs *cap)
 {
 	if (xdr_u_long(xdrs, &(cap->rmt_port)))
 		return (xdr_encap_parms(xdrs, &(cap->rmt_args)));
-	return (FALSE);
+	return FALSE;
 }
 
 /*
  * only worries about the struct encap_parms part of struct rmtcallargs.
  * The arglen must already be set!!
  */
-static bool_t
-xdr_opaque_parms(
-	XDR *xdrs,
-	struct rmtcallargs *cap
-  )
+static bool_t xdr_opaque_parms(XDR *xdrs,	struct rmtcallargs *cap)
 {
-
-	return (xdr_opaque(xdrs, cap->rmt_args.args, cap->rmt_args.arglen));
+	return xdr_opaque(xdrs, cap->rmt_args.args, cap->rmt_args.arglen);
 }
 
 /*
  * This routine finds and sets the length of incoming opaque paraters
  * and then calls xdr_opaque_parms.
  */
-static bool_t
-xdr_len_opaque_parms(
-	register XDR *xdrs,
-	struct rmtcallargs *cap
-  )
+static bool_t xdr_len_opaque_parms(XDR *xdrs,	struct rmtcallargs *cap)
 {
-	register u_int beginpos, lowpos, highpos, currpos, pos;
+	u_int beginpos, lowpos, highpos, currpos, pos;
 
 	beginpos = lowpos = pos = xdr_getpos(xdrs);
 	highpos = lowpos + ARGSIZE;
@@ -412,7 +377,7 @@ xdr_len_opaque_parms(
 	}
 	xdr_setpos(xdrs, beginpos);
 	cap->rmt_args.arglen = pos - beginpos;
-	return (xdr_opaque_parms(xdrs, cap));
+	return xdr_opaque_parms(xdrs, cap);
 }
 
 /*
@@ -422,11 +387,7 @@ xdr_len_opaque_parms(
  * a machine should shut-up instead of complain, less the requestor be
  * overrun with complaints at the expense of not hearing a valid reply ...
  */
-static void
-callit(
-	struct svc_req *rqstp,
-	SVCXPRT *xprt
-  )
+static void callit(struct svc_req *rqstp,	SVCXPRT *xprt)
 {
 	char buf[2000];
 	struct rmtcallargs a;
@@ -462,5 +423,5 @@ callit(
 		AUTH_DESTROY(client->cl_auth);
 		clnt_destroy(client);
 	}
-	(void)closesocket(socket);
+	closesocket(socket);
 }

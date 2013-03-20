@@ -1,3 +1,6 @@
+#ifndef __RPC_MAIN_HEADER__
+#define __RPC_MAIN_HEADER__
+
 static char *extendfile(char *file, char *ext);
 static void open_output(char *infile, char*outfile);
 static void open_input(char *infile, char *define);
@@ -15,3 +18,4 @@ static void do_registers(int argc, char *argv[]);
 static int parseargs(int argc, char *argv[],
                      struct commandline *cmd);
 
+#endif //__RPC_MAIN_HEADER__

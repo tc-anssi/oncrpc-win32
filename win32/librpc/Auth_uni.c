@@ -109,14 +109,14 @@ static void marshal_new_auth();
  * Create a unix style authenticator.
  * Returns an auth handle with the given stuff in it.
  */
-AUTH *authunix_create(char *machname, int uid, int gid, register int len,	int *aup_gids)
+AUTH *authunix_create(char *machname, int uid, int gid, int len,	int *aup_gids)
 {
 	struct authunix_parms aup;
 	char mymem[MAX_AUTH_BYTES];
 	struct timeval now;
 	XDR xdrs;
-	register AUTH *auth;
-	register struct audata *au;
+	AUTH *auth;
+	struct audata *au;
 
 	/*
 	 * Allocate and set up auth handle
@@ -195,10 +195,10 @@ AUTH *authunix_create(char *machname, int uid, int gid, register int len,	int *a
  */
 AUTH *authunix_create_default()
 {
-	register int len;
+	int len;
 	char machname[MAX_MACHINE_NAME + 1];
-	register int uid;
-	register int gid;
+	int uid;
+	int gid;
 	int gids[NGRPS];
 
 	if (gethostname(machname, MAX_MACHINE_NAME) == -1)
@@ -230,14 +230,14 @@ static void authunix_nextverf(AUTH *auth)
 
 static bool_t authunix_marshal(AUTH *auth, XDR *xdrs)
 {
-	register struct audata *au = AUTH_PRIVATE(auth);
+	struct audata *au = AUTH_PRIVATE(auth);
 
 	return XDR_PUTBYTES(xdrs, au->au_marshed, au->au_mpos);
 }
 
-static bool_t authunix_validate(register AUTH *auth, struct opaque_auth verf)
+static bool_t authunix_validate(AUTH *auth, struct opaque_auth verf)
 {
-	register struct audata *au;
+	struct audata *au;
 	XDR xdrs;
 
 	if (verf.oa_flavor == AUTH_SHORT) {
@@ -262,13 +262,13 @@ static bool_t authunix_validate(register AUTH *auth, struct opaque_auth verf)
 	return TRUE;
 }
 
-static bool_t authunix_refresh(register AUTH *auth)
+static bool_t authunix_refresh(AUTH *auth)
 {
-	register struct audata *au = AUTH_PRIVATE(auth);
+	struct audata *au = AUTH_PRIVATE(auth);
 	struct authunix_parms aup;
 	struct timeval now;
 	XDR xdrs;
-	register int stat;
+	int stat;
 
 	if (auth->ah_cred.oa_base == au->au_origcred.oa_base) {
 		/* there is no hope.  Punt */
@@ -303,9 +303,9 @@ done:
 	return stat;
 }
 
-static void authunix_destroy(register AUTH *auth)
+static void authunix_destroy(AUTH *auth)
 {
-	register struct audata *au = AUTH_PRIVATE(auth);
+	struct audata *au = AUTH_PRIVATE(auth);
 
 	mem_free(au->au_origcred.oa_base, au->au_origcred.oa_length);
 
@@ -324,11 +324,11 @@ static void authunix_destroy(register AUTH *auth)
  * Marshals (pre-serializes) an auth struct.
  * sets private data, au_marshed and au_mpos
  */
-static void marshal_new_auth(register AUTH *auth)
+static void marshal_new_auth(AUTH *auth)
 {
 	XDR		xdr_stream;
-	register XDR	*xdrs = &xdr_stream;
-	register struct audata *au = AUTH_PRIVATE(auth);
+	XDR	*xdrs = &xdr_stream;
+	struct audata *au = AUTH_PRIVATE(auth);
 
 	xdrmem_create(xdrs, au->au_marshed, MAX_AUTH_BYTES, XDR_ENCODE);
 	if ((! xdr_opaque_auth(xdrs, &(auth->ah_cred))) ||

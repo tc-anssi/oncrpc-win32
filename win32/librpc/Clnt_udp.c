@@ -126,10 +126,10 @@ struct cu_data {
  * sent and received.
  */
 CLIENT *clntudp_bufcreate(struct sockaddr_in *raddr,	u_long program,	u_long version,	struct timeval wait,
-	                        register SOCKET *sockp,	u_int sendsz,	u_int recvsz)
+	                        SOCKET *sockp,	u_int sendsz,	u_int recvsz)
 {
 	CLIENT *cl;
-	register struct cu_data *cu;
+	struct cu_data *cu;
 	struct timeval now;
 	struct rpc_msg call_msg;
 
@@ -230,13 +230,13 @@ fooy:
 	return (CLIENT *)NULL;
 }
 
-CLIENT *clntudp_create(struct sockaddr_in *raddr,	u_long program,	u_long version,	struct timeval wait, register SOCKET *sockp)
+CLIENT *clntudp_create(struct sockaddr_in *raddr,	u_long program,	u_long version,	struct timeval wait, SOCKET *sockp)
 {
 	return clntudp_bufcreate(raddr, program, version, wait, sockp, UDPMSGSIZE, UDPMSGSIZE);
 }
 
 static enum clnt_stat clntudp_call(
-	register CLIENT	*cl,		/* client handle */
+	CLIENT	*cl,		/* client handle */
 	u_long		proc,		/* procedure number */
 	xdrproc_t	xargs,		/* xdr routine for args */
 	caddr_t		argsp,		/* pointer to args */
@@ -245,10 +245,10 @@ static enum clnt_stat clntudp_call(
 	struct timeval	utimeout	/* seconds to wait before giving up */
   )
 {
-	register struct cu_data *cu = (struct cu_data *)cl->cl_private;
-	register XDR *xdrs;
-	register int outlen;
-	register int inlen;
+	struct cu_data *cu = (struct cu_data *)cl->cl_private;
+	XDR *xdrs;
+	int outlen;
+	int inlen;
 	int fromlen;
 	fd_set readfds;
 	fd_set mask;
@@ -418,7 +418,7 @@ send_again:
 
 static void clntudp_geterr(CLIENT *cl, struct rpc_err *errp)
 {
-	register struct cu_data *cu = (struct cu_data *)cl->cl_private;
+	struct cu_data *cu = (struct cu_data *)cl->cl_private;
 
 	*errp = cu->cu_error;
 }
@@ -426,8 +426,8 @@ static void clntudp_geterr(CLIENT *cl, struct rpc_err *errp)
 
 static bool_t clntudp_freeres(CLIENT *cl,	xdrproc_t xdr_res, caddr_t res_ptr)
 {
-	register struct cu_data *cu = (struct cu_data *)cl->cl_private;
-	register XDR *xdrs = &(cu->cu_outxdrs);
+	struct cu_data *cu = (struct cu_data *)cl->cl_private;
+	XDR *xdrs = &(cu->cu_outxdrs);
 
 	xdrs->x_op = XDR_FREE;
 	return ((*xdr_res)(xdrs, res_ptr));
@@ -439,7 +439,7 @@ static void clntudp_abort()
 
 static bool_t clntudp_control(CLIENT *cl,	int request, char *info)
 {
-	register struct cu_data *cu = (struct cu_data *)cl->cl_private;
+	struct cu_data *cu = (struct cu_data *)cl->cl_private;
 
 	switch (request) {
 	case CLSET_TIMEOUT:
@@ -465,7 +465,7 @@ static bool_t clntudp_control(CLIENT *cl,	int request, char *info)
 
 static void clntudp_destroy(CLIENT *cl)
 {
-	register struct cu_data *cu = (struct cu_data *)cl->cl_private;
+	struct cu_data *cu = (struct cu_data *)cl->cl_private;
 
 	if (cu->cu_closeit) {
 #ifdef WIN32

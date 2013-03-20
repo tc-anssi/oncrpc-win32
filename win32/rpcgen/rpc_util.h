@@ -61,6 +61,9 @@
  * rpc_util.h, Useful definitions for the RPC protocol compiler 
  * Copyright (C) 1987, Sun Microsystems, Inc. 
  */
+#ifndef __RPC_UTIL_HEADER__
+#define __RPC_UTIL_HEADER__
+
 #ifndef WIN32
 extern char *malloc();
 #endif
@@ -98,68 +101,36 @@ extern list *defined;
 /*
  * rpc_util routines 
  */
-void storeval(
-  list **lstp,
-  char *val
-  );
+void storeval(list **lstp, char *val);
 
 #define STOREVAL(list,item)	\
 	storeval(list,(char *)item)
 
-char *findval(
-  list *lst,
-  char *val,
-  int (*cmp) ()
-  );
+char *findval(list *lst, char *val, int (*cmp) ());
 
 #define FINDVAL(list,item,finder) \
 	findval(list, (char *) item, finder)
 
 typedef struct definition definition;
 
-static int findit(
-  definition *def,
-  char *type
-  );
+static int findit(definition *def, char *type);
 
-static char * fixit(
-  char *type,
-  char *orig
-  );
+static char * fixit(char *type, char *orig);
 
-char *fixtype(
-  char *type
-  );
+char *fixtype(char *type);
 
-char *stringfix(
-  char *type
-  );
+char *stringfix(char *type);
 
-void ptype(
-  char *prefix,
-  char *type,
-  int follow
-  );
+void ptype(char *prefix, char *type, int follow);
 
-static int typedefed(
-  definition *def,
-  char *type
-  );
+static int typedefed(definition *def, char *type);
 
 typedef enum relation relation;
-int isvectordef(
-  char *type,
-  relation rel
-  );
+int isvectordef(char *type, relation rel);
 
-static char *locase(
-  char *str
-  );
+static char *locase(char *str);
 
-void pvname(
-  char *pname,
-  char *vnum
-  );
+void pvname(char *pname, char *vnum);
 
 void crash();
 static void printbuf();
@@ -200,3 +171,5 @@ void write_programs();
  * rpc_clntout routines
  */
 void write_stubs();
+
+#endif //__RPC_UTIL_HEADER__

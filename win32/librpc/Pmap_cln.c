@@ -82,7 +82,7 @@ bool_t pmap_set(u_long program,	u_long version,	int protocol,	u_short port)
 {
 	struct sockaddr_in myaddress;
 	int socket = -1;
-	register CLIENT *client;
+	CLIENT *client;
 	struct pmap parms;
 	bool_t rslt;
 
@@ -97,7 +97,7 @@ bool_t pmap_set(u_long program,	u_long version,	int protocol,	u_short port)
 	parms.pm_port = port;
 	if (CLNT_CALL(client, PMAPPROC_SET, xdr_pmap, &parms, xdr_bool, &rslt,
 	    tottimeout) != RPC_SUCCESS) {
-		clnt_perror(client, "Cannot register service");
+		clnt_perror(client, "Cannot service");
 		return FALSE;
 	}
 	CLNT_DESTROY(client);
@@ -117,7 +117,7 @@ bool_t pmap_unset(u_long program,	u_long version)
 {
 	struct sockaddr_in myaddress;
 	int socket = -1;
-	register CLIENT *client;
+	CLIENT *client;
 	struct pmap parms;
 	bool_t rslt;
 

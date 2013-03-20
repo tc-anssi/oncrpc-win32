@@ -80,10 +80,7 @@ static char sccsid[] = "@(#)rpc_cout.c 1.8 87/06/24 (C) 1987 SMI";
 /*
  * Emit the C-routine for the given definition 
  */
-void
-emit(
-	definition *def
-  )
+void emit(definition *def)
 {
 	if (def->def_kind == DEF_PROGRAM || def->def_kind == DEF_CONST) {
 		return;
@@ -106,11 +103,7 @@ emit(
 	print_trailer();
 }
 
-static int
-findtype(
-	definition *def,
-	char *type
-  )
+static int findtype(definition *def, char *type)
 {
 	if (def->def_kind == DEF_PROGRAM || def->def_kind == DEF_CONST) {
 		return (0);
@@ -119,10 +112,7 @@ findtype(
 	}
 }
 
-static int
-undefined(
-	char *type
-  )
+static int undefined(char *type)
 {
 	definition *def;
 
@@ -131,10 +121,7 @@ undefined(
 }
 
 
-static void
-print_header(
-	definition *def
-  )
+static void print_header(definition *def)
 {
 	space();
 	f_print(fout, "bool_t\n");
@@ -149,8 +136,7 @@ print_header(
 	f_print(fout, "{\n");
 }
 
-static void
-print_trailer()
+static void print_trailer()
 {
 	f_print(fout, "\treturn (TRUE);\n");
 	f_print(fout, "}\n");
@@ -158,31 +144,20 @@ print_trailer()
 }
 
 
-static void
-print_ifopen(
-	int indent,
-	char *name
-  )
+static void print_ifopen(int indent, char *name)
 {
 	tabify(fout, indent);
 	f_print(fout, "if (!xdr_%s(xdrs", name);
 }
 
 
-static void
-print_ifarg(
-	char *arg
-  )
+static void print_ifarg(char *arg)
 {
 	f_print(fout, ", %s", arg);
 }
 
 
-static void
-print_ifsizeof(
-	char *prefix,
-	char *type
-  )
+static void print_ifsizeof(char *prefix, char *type)
 {
 	if (streq(type, "bool")) {
 		f_print(fout, ", sizeof(bool_t), xdr_bool");
@@ -195,10 +170,7 @@ print_ifsizeof(
 	}
 }
 
-static void
-print_ifclose(
-	int indent
-  )
+static void print_ifclose(int indent)
 {
 	f_print(fout, ")) {\n");
 	tabify(fout, indent);
@@ -207,22 +179,12 @@ print_ifclose(
 	f_print(fout, "}\n");
 }
 
-static void
-space()
+static void space()
 {
 	f_print(fout, "\n\n");
 }
 
-static void
-print_ifstat(
-	int indent,
-	char *prefix,
-	char *type,
-	relation rel,
-	char *amax,
-	char *objname,
-	char *name
-  )
+static void print_ifstat(int indent, char *prefix, char *type, relation rel, char *amax, char *objname,	char *name)
 {
 	char *alt = NULL;
 
@@ -291,10 +253,7 @@ print_ifstat(
 
 
 /* ARGSUSED */
-static void
-emit_enum(
-	definition *def
-  )
+static void emit_enum(definition *def)
 {
 	print_ifopen(1, "enum");
 	print_ifarg("(enum_t *)objp");
@@ -302,10 +261,7 @@ emit_enum(
 }
 
 
-static void
-emit_union(
-	definition *def
-  )
+static void emit_union(definition *def)
 {
 	declaration *dflt;
 	case_list *cl;
@@ -349,10 +305,7 @@ emit_union(
 
 
 
-static void
-emit_struct(
-	definition *def
-  )
+static void emit_struct(definition *def)
 {
 	decl_list *dl;
 
@@ -364,10 +317,7 @@ emit_struct(
 
 
 
-static void
-emit_typedef(
-	definition *def
-  )
+static void emit_typedef(definition *def)
 {
 	char *prefix = def->def.ty.old_prefix;
 	char *type = def->def.ty.old_type;
@@ -377,14 +327,7 @@ emit_typedef(
 	print_ifstat(1, prefix, type, rel, amax, "objp", def->def_name);
 }
 
-
-
-
-
-static void
-print_stat(
-	declaration *dec
-  )
+static void print_stat(declaration *dec)
 {
 	char *prefix = dec->prefix;
 	char *type = dec->type;

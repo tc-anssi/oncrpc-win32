@@ -121,11 +121,11 @@ static void cache_set(SVCXPRT *xprt, u_long replylen);
  * see (svc.h, xprt_register).
  * The routines returns NULL if a problem occurred.
  */
-SVCXPRT *svcudp_bufcreate(register SOCKET sock,	u_int sendsz, u_int recvsz)
+SVCXPRT *svcudp_bufcreate(SOCKET sock,	u_int sendsz, u_int recvsz)
 {
 	bool_t madesock = FALSE;
-	register SVCXPRT *xprt;
-	register struct svcudp_data *su;
+	SVCXPRT *xprt;
+	struct svcudp_data *su;
 	struct sockaddr_in addr;
 	int len = sizeof(struct sockaddr_in);
 
@@ -205,11 +205,11 @@ static enum xprt_stat svcudp_stat(SVCXPRT *xprt)
 	return XPRT_IDLE;
 }
 
-static bool_t svcudp_recv(register SVCXPRT *xprt,	struct rpc_msg *msg)
+static bool_t svcudp_recv(SVCXPRT *xprt,	struct rpc_msg *msg)
 {
-	register struct svcudp_data *su = su_data(xprt);
-	register XDR *xdrs = &(su->su_xdrs);
-	register int rlen;
+	struct svcudp_data *su = su_data(xprt);
+	XDR *xdrs = &(su->su_xdrs);
+	int rlen;
 	char *reply;
 	u_long replylen;
 
@@ -244,12 +244,12 @@ static bool_t svcudp_recv(register SVCXPRT *xprt,	struct rpc_msg *msg)
 	return TRUE;
 }
 
-static bool_t svcudp_reply(register SVCXPRT *xprt, struct rpc_msg *msg)
+static bool_t svcudp_reply(SVCXPRT *xprt, struct rpc_msg *msg)
 {
-	register struct svcudp_data *su = su_data(xprt);
-	register XDR *xdrs = &(su->su_xdrs);
-	register int slen;
-	register bool_t stat = FALSE;
+	struct svcudp_data *su = su_data(xprt);
+	XDR *xdrs = &(su->su_xdrs);
+	int slen;
+	bool_t stat = FALSE;
 
 	xdrs->x_op = XDR_ENCODE;
 	XDR_SETPOS(xdrs, 0);
@@ -275,15 +275,15 @@ static bool_t svcudp_getargs(SVCXPRT *xprt,	xdrproc_t xdr_args,	caddr_t args_ptr
 
 static bool_t svcudp_freeargs(SVCXPRT *xprt, xdrproc_t xdr_args, caddr_t args_ptr)
 {
-	register XDR *xdrs = &(su_data(xprt)->su_xdrs);
+	XDR *xdrs = &(su_data(xprt)->su_xdrs);
 
 	xdrs->x_op = XDR_FREE;
 	return ((*xdr_args)(xdrs, args_ptr));
 }
 
-static void svcudp_destroy(register SVCXPRT *xprt)
+static void svcudp_destroy(SVCXPRT *xprt)
 {
-	register struct svcudp_data *su = su_data(xprt);
+	struct svcudp_data *su = su_data(xprt);
 
 	xprt_unregister(xprt);
 #ifdef WIN32
@@ -411,9 +411,9 @@ int svcudp_enablecache(SVCXPRT *transp,	u_long size)
  */
 static void cache_set(SVCXPRT *xprt, u_long replylen)
 {
-	register cache_ptr victim;
-	register cache_ptr *vicp;
-	register struct svcudp_data *su = su_data(xprt);
+	cache_ptr victim;
+	cache_ptr *vicp;
+	struct svcudp_data *su = su_data(xprt);
 	struct udp_cache *uc = (struct udp_cache *) su->su_cache;
 	u_int loc;
 	char *newbuf;
@@ -474,9 +474,9 @@ static void cache_set(SVCXPRT *xprt, u_long replylen)
 static int cache_get(SVCXPRT *xprt,	struct rpc_msg *msg, char **replyp, u_long *replylenp)
 {
 	u_int loc;
-	register cache_ptr ent;
-	register struct svcudp_data *su = su_data(xprt);
-	register struct udp_cache *uc = (struct udp_cache *) su->su_cache;
+	cache_ptr ent;
+	struct svcudp_data *su = su_data(xprt);
+	struct udp_cache *uc = (struct udp_cache *) su->su_cache;
 
 #	define EQADDR(a1, a2)	(bcmp((char*)&a1, (char*)&a2, sizeof(a1)) == 0)
 

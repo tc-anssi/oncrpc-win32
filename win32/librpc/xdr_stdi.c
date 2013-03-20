@@ -99,7 +99,7 @@ static struct xdr_ops	xdrstdio_ops = {
  * Sets the xdr stream handle xdrs for use on the stream file.
  * Operation flag is set to op.
  */
-void xdrstdio_create(register XDR *xdrs, FILE *file, enum xdr_op op)
+void xdrstdio_create(XDR *xdrs, FILE *file, enum xdr_op op)
 {
 	xdrs->x_op = op;
 	xdrs->x_ops = &xdrstdio_ops;
@@ -112,13 +112,13 @@ void xdrstdio_create(register XDR *xdrs, FILE *file, enum xdr_op op)
  * Destroy a stdio xdr stream.
  * Cleans up the xdr stream handle xdrs previously set up by xdrstdio_create.
  */
-static void xdrstdio_destroy(register XDR *xdrs)
+static void xdrstdio_destroy(XDR *xdrs)
 {
 	fflush((FILE *)xdrs->x_private);
 	/* xx should we close the file ?? */
 };
 
-static bool_t xdrstdio_getlong(XDR *xdrs, register long *lp)
+static bool_t xdrstdio_getlong(XDR *xdrs, long *lp)
 {
 	if (fread((caddr_t)lp, sizeof(long), 1, (FILE *)xdrs->x_private) != 1)
 		return FALSE;

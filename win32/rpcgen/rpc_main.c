@@ -158,11 +158,7 @@ main(
 /*
  * add extension to filename 
  */
-static char *
-extendfile(
-	char *file,
-	char *ext
-  )
+static char *extendfile(char *file,	char *ext)
 {
 #ifdef WIN32
 	int i;
@@ -185,19 +181,15 @@ extendfile(
 	if (p == NULL) {
 		p = file + strlen(file);
 	}
-	(void) strcpy(res, file);
-	(void) strcpy(res + (p - file), ext);
-	return (res);
+	strcpy(res, file);
+	strcpy(res + (p - file), ext);
+	return res;
 }
 
 /*
  * Open output file with given extension 
  */
-static void
-open_output(
-	char *infile,
-	char *outfile
-  )
+static void open_output(char *infile,	char *outfile)
 {
 	if (outfile == NULL) {
 		fout = stdout;
@@ -220,11 +212,7 @@ open_output(
 /*
  * Open input file with given define for C-preprocessor 
  */
-static void
-open_input(
-	char *infile,
-	char *define
-  )
+static void open_input(char *infile, char *define)
 {
 #ifdef WIN32
 #ifdef __BORLANDC__
@@ -238,7 +226,7 @@ open_input(
 	_pipe(pd, 0xffff, O_TEXT);
 
 		old = dup(1);
-		(void) dup2(pd[1], 1);
+		dup2(pd[1], 1);
 
 		if (_spawnlp(_P_WAIT, CPP, CPP, CPPFLAGS, 
 					define, infile, NULL) < 0) {
@@ -247,9 +235,9 @@ open_input(
 			crash();
 		}
 
-	(void) dup2(old, 1);
+	dup2(old, 1);
 
-	(void) close(pd[1]);
+	close(pd[1]);
 	fin = fdopen(pd[0], "r");
 	if (fin == NULL) {
 		f_print(stderr, "%s: ", cmdname);
@@ -286,13 +274,7 @@ open_input(
 /*
  * Compile into an XDR routine output file
  */
-static void
-c_output(
-	char *infile,
-	char *define,
-	int extend,
-	char *outfile
-  )
+static void c_output(char *infile, char *define, int extend, char *outfile)
 {
 	definition *def;
 	char *include;
@@ -312,20 +294,14 @@ c_output(
 		emit(def);
 	}
 	if (extend && tell == ftell(fout)) {
-		(void) unlink(outfilename);
+		unlink(outfilename);
 	}
 }
 
 /*
  * Compile into an XDR header file
  */
-static void
-h_output(
-	char *infile,
-	char *define,
-	int extend,
-	char *outfile
-  )
+static void h_output(char *infile, char *define, int extend, char *outfile)
 {
 	definition *def;
 	char *outfilename;
@@ -346,23 +322,14 @@ h_output(
 		print_datadef(def);
 	}
 	if (extend && tell == ftell(fout)) {
-		(void) unlink(outfilename);
+		unlink(outfilename);
 	}
 }
 
 /*
  * Compile into an RPC service
  */
-static void
-s_output(
-	int argc,
-	char *argv[],
-	char *infile,
-	char *define,
-	int extend,
-	char *outfile,
-	int nomain
-  )
+static void s_output(int argc, char *argv[], char *infile, char *define, int extend, char *outfile,	int nomain)
 {
 	char *include;
 	definition *def;
@@ -384,7 +351,7 @@ s_output(
 		foundprogram |= (def->def_kind == DEF_PROGRAM);
 	}
 	if (extend && !foundprogram) {
-		(void) unlink(outfilename);
+		unlink(outfilename);
 		return;
 	}
 	if (nomain) {
@@ -397,13 +364,7 @@ s_output(
 	}
 }
 
-static void
-l_output(
-	char *infile,
-	char *define,
-	int extend,
-	char *outfile
-  )
+static void l_output(char *infile, char *define, int extend, char *outfile)
 {
 	char *include;
 	definition *def;
@@ -423,7 +384,7 @@ l_output(
 		foundprogram |= (def->def_kind == DEF_PROGRAM);
 	}
 	if (extend && !foundprogram) {
-		(void) unlink(outfilename);
+		unlink(outfilename);
 		return;
 	}
 	write_stubs();
@@ -432,11 +393,7 @@ l_output(
 /*
  * Perform registrations for service output 
  */
-static void
-do_registers(
-	int argc,
-	char *argv[]
-  )
+static void do_registers(int argc, char *argv[])
 {
 	int i;
 
@@ -451,12 +408,7 @@ do_registers(
 /*
  * Parse command line arguments 
  */
-static int
-parseargs(
-	int argc,
-	char *argv[],
-	struct commandline *cmd
-  )
+static int parseargs(int argc, char *argv[], struct commandline *cmd)
 {
 	int i;
 	int j;
@@ -533,10 +485,10 @@ parseargs(
 	nflags = cmd->cflag + cmd->hflag + cmd->sflag + cmd->lflag + cmd->mflag;
 	if (nflags == 0) {
 		if (cmd->outfile != NULL || cmd->infile == NULL) {
-			return (0);
+			return 0;
 		}
 	} else if (nflags > 1) {
-		return (0);
+		return 0;
 	}
-	return (1);
+	return 1;
 }

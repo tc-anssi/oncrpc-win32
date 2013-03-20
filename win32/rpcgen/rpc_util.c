@@ -94,8 +94,7 @@ list *defined;	/* list of defined things */
 /*
  * Reinitialize the world 
  */
-void
-reinitialize()
+void reinitialize()
 {
 	bzero(curline, MAXLINESIZE);
 	where = curline;
@@ -106,11 +105,7 @@ reinitialize()
 /*
  * string equality 
  */
-int
-streq(
-	char *a,
-	char *b
-  )
+int streq(char *a, char *b)
 {
 	return (strcmp(a, b) == 0);
 }
@@ -118,29 +113,20 @@ streq(
 /*
  * find a value in a list 
  */
-char *
-findval(
-	list *lst,
-	char *val,
-	int (*cmp) ()
-  )
+char *findval(list *lst, char *val,	int (*cmp) ())
 {
 	for (; lst != NULL; lst = lst->next) {
 		if ((*cmp) (lst->val, val)) {
-			return (lst->val);
+			return lst->val;
 		}
 	}
-	return (NULL);
+	return NULL;
 }
 
 /*
  * store a value in a list 
  */
-void
-storeval(
-	list **lstp,
-	char *val
-  )
+void storeval(list **lstp, char *val)
 {
 	list **l;
 	list *lst;
@@ -153,27 +139,19 @@ storeval(
 }
 
 
-static int
-findit(
-	definition *def,
-	char *type
-  )
+static int findit(definition *def, char *type)
 {
-	return (streq(def->def_name, type));
+	return streq(def->def_name, type);
 }
 
 
-static char *
-fixit(
-	char *type,
-	char *orig
-  )
+static char *fixit(char *type, char *orig)
 {
 	definition *def;
 
 	def = (definition *) FINDVAL(defined, type, findit);
 	if (def == NULL || def->def_kind != DEF_TYPEDEF) {
-		return (orig);
+		return orig;
 	}
 	switch (def->def.ty.rel) {
 	case REL_VECTOR:
@@ -181,36 +159,25 @@ fixit(
 	case REL_ALIAS:
 		return (fixit(def->def.ty.old_type, orig));
 	default:
-		return (orig);
+		return orig;
 	}
 }
 
-char *
-fixtype(
-	char *type
-  )
+char *fixtype(char *type)
 {
-	return (fixit(type, type));
+	return fixit(type, type);
 }
 
-char *
-stringfix(
-	char *type
-  )
+char *stringfix(char *type)
 {
 	if (streq(type, "string")) {
-		return ("wrapstring");
+		return "wrapstring";
 	} else {
-		return (type);
+		return type;
 	}
 }
 
-void
-ptype(
-	char *prefix,
-	char *type,
-	int follow
-  )
+void ptype(char *prefix, char *type, int follow)
 {
 	if (prefix != NULL) {
 		if (streq(prefix, "enum")) {
@@ -229,39 +196,31 @@ ptype(
 }
 
 
-static int
-typedefed(
-	definition *def,
-	char *type
-  )
+static int typedefed(definition *def, char *type)
 {
 	if (def->def_kind != DEF_TYPEDEF || def->def.ty.old_prefix != NULL) {
-		return (0);
+		return 0;
 	} else {
-		return (streq(def->def_name, type));
+		return streq(def->def_name, type);
 	}
 }
 
-int
-isvectordef(
-	char *type,
-	relation rel
-  )
+int isvectordef(char *type, relation rel)
 {
 	definition *def;
 
 	for (;;) {
 		switch (rel) {
 		case REL_VECTOR:
-			return (!streq(type, "string"));
+			return !streq(type, "string");
 		case REL_ARRAY:
-			return (0);
+			return 0;
 		case REL_POINTER:
-			return (0);
+			return 0;
 		case REL_ALIAS:
 			def = (definition *) FINDVAL(defined, type, typedefed);
 			if (def == NULL) {
-				return (0);
+				return 0;
 			}
 			type = def->def.ty.old_type;
 			rel = def->def.ty.rel;
@@ -270,10 +229,7 @@ isvectordef(
 }
 
 
-static char *
-locase(
-	char *str
-  )
+static char *locase(char *str)
 {
 	char c;
 	static char buf[100];
@@ -283,15 +239,11 @@ locase(
 		*p++ = (c >= 'A' && c <= 'Z') ? (c - 'A' + 'a') : c;
 	}
 	*p = 0;
-	return (buf);
+	return buf;
 }
 
 
-void
-pvname(
-	char *pname,
-	char *vnum
-  )
+void pvname(char *pname, char *vnum)
 {
 	f_print(fout, "%s_%s", locase(pname), vnum);
 }
@@ -300,19 +252,17 @@ pvname(
  * Something went wrong, unlink any files that we may have created and then
  * die. 
  */
-void
-crash()
+void crash()
 {
 	int i;
 
 	for (i = 0; i < nfiles; i++) {
-		(void) unlink(outfiles[i]);
+		unlink(outfiles[i]);
 	}
 	exit(1);
 }
 
-static void
-printbuf()
+static void printbuf()
 {
   char c;
   int i;
@@ -326,13 +276,12 @@ printbuf()
       cnt = 1;
     }
     while (cnt--) {
-      (void) fputc(c, stderr);
+      fputc(c, stderr);
     }
   }
 }
 
-static void
-printwhere()
+static void printwhere()
 {
   int i;
   char c;
@@ -347,19 +296,16 @@ printwhere()
       cnt = 1;
     }
     while (cnt--) {
-      (void) fputc('^', stderr);
+      fputc('^', stderr);
     }
   }
-  (void) fputc('\n', stderr);
+  fputc('\n', stderr);
 }
 
 /*
  * print a useful (?) error message, and then die 
  */
-void
-error(
-	char *msg
-  )
+void error(char *msg)
 {
 	printwhere();
 	f_print(stderr, "%s, line %d: ", infilename, linenum);
@@ -367,10 +313,7 @@ error(
 	crash();
 }
 
-void
-record_open(
-	char *file
-  )
+void record_open(char *file)
 {
 	if (nfiles < NFILES) {
 		outfiles[nfiles++] = file;
@@ -386,10 +329,7 @@ static char *toktostr();
 /*
  * error, token encountered was not the expected one 
  */
-void
-expected1(
-	tok_kind exp1
-  )
+void expected1(tok_kind exp1)
 {
 	s_print(expectbuf, "expected '%s'",
 		toktostr(exp1));
@@ -399,11 +339,7 @@ expected1(
 /*
  * error, token encountered was not one of two expected ones 
  */
-void
-expected2(
-	tok_kind exp1,
-  tok_kind exp2
-  )
+void expected2(tok_kind exp1, tok_kind exp2)
 {
 	s_print(expectbuf, "expected '%s' or '%s'",
 		toktostr(exp1),
@@ -414,12 +350,7 @@ expected2(
 /*
  * error, token encountered was not one of 3 expected ones 
  */
-void
-expected3(
-	tok_kind exp1,
-  tok_kind exp2,
-  tok_kind exp3
-  )
+void expected3(tok_kind exp1, tok_kind exp2, tok_kind exp3)
 {
 	s_print(expectbuf, "expected '%s', '%s' or '%s'",
 		toktostr(exp1),
@@ -428,14 +359,10 @@ expected3(
 	error(expectbuf);
 }
 
-void
-tabify(
-	FILE *f,
-	int tab
-  )
+void tabify(FILE *f, int tab)
 {
 	while (tab--) {
-		(void) fputc('\t', f);
+		fputc('\t', f);
 	}
 }
 
@@ -479,13 +406,10 @@ static token tokstrings[] = {
 			     {TOK_EOF, "??????"}
 };
 
-static char *
-toktostr(
-	tok_kind kind
-  )
+static char *toktostr(tok_kind kind)
 {
 	token *sp;
 
 	for (sp = tokstrings; sp->kind != TOK_EOF && sp->kind != kind; sp++);
-	return (sp->str);
+	return sp->str;
 }

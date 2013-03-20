@@ -60,6 +60,8 @@
  * rpc_parse.h, Definitions for the RPCL parser 
  * Copyright (C) 1987, Sun Microsystems, Inc. 
  */
+#ifndef __RPC_PARS_HEADER__
+#define __RPC_PARS_HEADER__
 
 enum defkind {
 	DEF_CONST,
@@ -184,45 +186,24 @@ typedef struct definition definition;
 /* @(#)rpc_parse.h	2.1 88/08/01 4.0 RPCSRC */
 definition *get_definition();
 
-static void isdefined(
-  definition *defp
-  );
+static void isdefined(definition *defp);
 
-static void def_struct(
-  definition *defp
-  );
+static void def_struct(definition *defp);
 
-static void def_program(
-  definition *defp
-  );
+static void def_program(definition *defp);
 
-static void def_enum(
-  definition *defp
-  );
+static void def_enum(definition *defp);
 
-static void def_const(
-  definition *defp
-  );
+static void def_const(definition *defp);
 
-static void def_union(
-  definition *defp
-  );
+static void def_union(definition *defp);
 
-static void def_typedef(
-  definition *defp
-  );
+static void def_typedef(definition *defp);
 
-static void get_declaration(
-  declaration *dec,
-  defkind dkind
-  );
+static void get_declaration(declaration *dec, defkind dkind);
 
-static void get_type(
-  char **prefixp,
-  char **typep,
-  defkind dkind
-  );
+static void get_type(char **prefixp, char **typep, defkind dkind);
 
-static void unsigned_dec(
-  char **typep
-  );
+static void unsigned_dec(char **typep);
+
+#endif //__RPC_PARS_HEADER__

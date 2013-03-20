@@ -108,7 +108,7 @@ void	svc_getreq();
  */
 CLIENT *clntraw_create(u_long prog,	u_long vers)
 {
-	register struct clntraw_private *clp = clntraw_private;
+	struct clntraw_private *clp = clntraw_private;
 	struct rpc_msg call_msg;
 	XDR *xdrs = &clp->xdr_stream;
 	CLIENT	*client = &clp->client_object;
@@ -149,8 +149,8 @@ CLIENT *clntraw_create(u_long prog,	u_long vers)
 static enum clnt_stat clntraw_call(CLIENT *h,	u_long proc, xdrproc_t xargs,	caddr_t argsp, xdrproc_t xresults,
 	                                 caddr_t resultsp, struct timeval timeout)
 {
-	register struct clntraw_private *clp = clntraw_private;
-	register XDR *xdrs = &clp->xdr_stream;
+	struct clntraw_private *clp = clntraw_private;
+	XDR *xdrs = &clp->xdr_stream;
 	struct rpc_msg msg;
 	enum clnt_stat status;
 	struct rpc_err error;
@@ -221,8 +221,8 @@ static void clntraw_geterr()
 
 static bool_t clntraw_freeres(CLIENT *cl,	xdrproc_t xdr_res, caddr_t res_ptr)
 {
-	register struct clntraw_private *clp = clntraw_private;
-	register XDR *xdrs = &clp->xdr_stream;
+	struct clntraw_private *clp = clntraw_private;
+	XDR *xdrs = &clp->xdr_stream;
 	bool_t rval;
 
 	if (clp == 0)

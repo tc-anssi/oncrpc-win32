@@ -98,7 +98,7 @@ static char RPCDB[] = "/etc/rpc";
 
 void setrpcent(int f)
 {
-	register struct rpcdata *d = _rpcdata();
+	struct rpcdata *d = _rpcdata();
 
 	if (d == 0)
 		return;
@@ -114,7 +114,7 @@ void setrpcent(int f)
 
 void endrpcent()
 {
-	register struct rpcdata *d = _rpcdata();
+	struct rpcdata *d = _rpcdata();
 
 	if (d == 0)
 		return;
@@ -131,7 +131,7 @@ void endrpcent()
 struct rpcent *getrpcent()
 {
 	char *key = NULL, *val = NULL;
-	register struct rpcdata *d = _rpcdata();
+	struct rpcdata *d = _rpcdata();
 
 	if (d == 0)
 		return NULL;
@@ -144,9 +144,9 @@ struct rpcent *getrpcent()
 
 static struct rpcent *interpret(char *val, int len)
 {
-	register struct rpcdata *d = _rpcdata();
+	struct rpcdata *d = _rpcdata();
 	char *p;
-	register char *cp, **q;
+	char *cp, **q;
 
 	if (d == 0)
 		return NULL;
@@ -209,7 +209,7 @@ static struct rpcent *interpret(char *val, int len)
 
 static struct rpcdata *_rpcdata()
 {
-	register struct rpcdata *d = rpcdata;
+	struct rpcdata *d = rpcdata;
 
 #ifdef WIN32
 	char *str;
@@ -227,10 +227,10 @@ static struct rpcdata *_rpcdata()
 	return d;
 }
 
-struct rpcent *getrpcbynumber(register int number)
+struct rpcent *getrpcbynumber(int number)
 {
-	register struct rpcdata *d = _rpcdata();
-	register struct rpcent *p;
+	struct rpcdata *d = _rpcdata();
+	struct rpcent *p;
 	char *val = NULL;
 
 	if (d == 0)
