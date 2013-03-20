@@ -167,7 +167,7 @@ typedef struct {
 
 #ifdef WIN32
 #ifdef ONCRPCDLL
-extern struct opaque_auth _null_auth;
+extern ONCRPCAPI struct opaque_auth _null_auth;
 #else
 #ifdef __BORLANDC__
 extern __declspec(dllimport) struct opaque_auth _null_auth;
