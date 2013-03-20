@@ -69,12 +69,7 @@ static char sccsid[] = "@(#)clnt_generic.c 1.4 87/08/11 (C) 1987 SMI";
  * returns client handle. Default options are set, which the user can 
  * change using the rpc equivalent of ioctl()'s.
  */
-CLIENT *
-clnt_create(hostname, prog, vers, proto)
-	char *hostname;
-	unsigned prog;
-	unsigned vers;
-	char *proto;
+CLIENT *clnt_create(char *hostname,	unsigned prog, unsigned vers,	char *proto)
 {
 	struct hostent *h;
 	struct protoent *p;
@@ -86,7 +81,7 @@ clnt_create(hostname, prog, vers, proto)
 	h = gethostbyname(hostname);
 	if (h == NULL) {
 		rpc_createerr.cf_stat = RPC_UNKNOWNHOST;
-		return (NULL);
+		return NULL;
 	}
 	if (h->h_addrtype != AF_INET) {
 		/*
@@ -98,7 +93,7 @@ clnt_create(hostname, prog, vers, proto)
 #else
 		rpc_createerr.cf_error.re_errno = EAFNOSUPPORT; 
 #endif
-		return (NULL);
+		return NULL;
 	}
 	sin.sin_family = h->h_addrtype;
 	sin.sin_port = 0;
@@ -112,7 +107,7 @@ clnt_create(hostname, prog, vers, proto)
 #else
 		rpc_createerr.cf_error.re_errno = EPFNOSUPPORT;
 #endif 
-		return (NULL);
+		return NULL;
 	}
 	sock = RPC_ANYSOCK;
 	switch (p->p_proto) {
@@ -121,7 +116,7 @@ clnt_create(hostname, prog, vers, proto)
 		tv.tv_usec = 0;
 		client = clntudp_create(&sin, prog, vers, tv, &sock);
 		if (client == NULL) {
-			return (NULL);
+			return NULL;
 		}
 		tv.tv_sec = 25;
 		clnt_control(client, CLSET_TIMEOUT, &tv);
@@ -129,7 +124,7 @@ clnt_create(hostname, prog, vers, proto)
 	case IPPROTO_TCP:
 		client = clnttcp_create(&sin, prog, vers, &sock, 0, 0);
 		if (client == NULL) {
-			return (NULL);
+			return NULL;
 		}
 		tv.tv_sec = 25;
 		tv.tv_usec = 0;
@@ -142,7 +137,7 @@ clnt_create(hostname, prog, vers, proto)
 #else
 		rpc_createerr.cf_error.re_errno = EPFNOSUPPORT; 
 #endif
-		return (NULL);
+		return NULL;
 	}
-	return (client);
+	return client;
 }

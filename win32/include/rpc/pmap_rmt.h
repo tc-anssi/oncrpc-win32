@@ -62,6 +62,9 @@
  *
  * Copyright (C) 1986, Sun Microsystems, Inc.
  */
+#ifndef __PMAP_RMT_HEADER__
+#define __PMAP_RMT_HEADER__
+
 #include <rpc/types.h>
 
 struct rmtcallargs {
@@ -80,3 +83,5 @@ struct rmtcallres {
 };
 
 ONCRPCAPI bool_t xdr_rmtcallres();
+
+#endif //__PMAP_RMT_HEADER__

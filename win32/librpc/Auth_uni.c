@@ -109,13 +109,7 @@ static void marshal_new_auth();
  * Create a unix style authenticator.
  * Returns an auth handle with the given stuff in it.
  */
-AUTH *
-authunix_create(machname, uid, gid, len, aup_gids)
-	char *machname;
-	int uid;
-	int gid;
-	register int len;
-	int *aup_gids;
+AUTH *authunix_create(char *machname, int uid, int gid, register int len,	int *aup_gids)
 {
 	struct authunix_parms aup;
 	char mymem[MAX_AUTH_BYTES];
@@ -180,9 +174,9 @@ authunix_create(machname, uid, gid, len, aup_gids)
 #ifdef WIN32
 		nt_rpc_report("authunix_create: out of memory\n");
 #else
-		(void)fprintf(stderr, "authunix_create: out of memory\n");
+		fprintf(stderr, "authunix_create: out of memory\n");
 #endif
-		return (NULL);
+		return NULL;
 	}
 #endif
 	bcopy(mymem, au->au_origcred.oa_base, (u_int)len);
@@ -192,15 +186,14 @@ authunix_create(machname, uid, gid, len, aup_gids)
 	 */
 	auth->ah_cred = au->au_origcred;
 	marshal_new_auth(auth);
-	return (auth);
+	return auth;
 }
 
 /*
  * Returns an auth handle with parameters determined by doing lots of
  * syscalls.
  */
-AUTH *
-authunix_create_default()
+AUTH *authunix_create_default()
 {
 	register int len;
 	char machname[MAX_MACHINE_NAME + 1];
@@ -223,34 +216,26 @@ authunix_create_default()
 	if ((len = getgroups(NGRPS, gids)) < 0)
 		abort();
 #endif
-	return (authunix_create(machname, uid, gid, len, gids));
+	return authunix_create(machname, uid, gid, len, gids);
 }
 
 /*
  * authunix operations
  */
 
-static void
-authunix_nextverf(auth)
-	AUTH *auth;
+static void authunix_nextverf(AUTH *auth)
 {
 	/* no action necessary */
 }
 
-static bool_t
-authunix_marshal(auth, xdrs)
-	AUTH *auth;
-	XDR *xdrs;
+static bool_t authunix_marshal(AUTH *auth, XDR *xdrs)
 {
 	register struct audata *au = AUTH_PRIVATE(auth);
 
-	return (XDR_PUTBYTES(xdrs, au->au_marshed, au->au_mpos));
+	return XDR_PUTBYTES(xdrs, au->au_marshed, au->au_mpos);
 }
 
-static bool_t
-authunix_validate(auth, verf)
-	register AUTH *auth;
-	struct opaque_auth verf;
+static bool_t authunix_validate(register AUTH *auth, struct opaque_auth verf)
 {
 	register struct audata *au;
 	XDR xdrs;
@@ -274,12 +259,10 @@ authunix_validate(auth, verf)
 		}
 		marshal_new_auth(auth);
 	}
-	return (TRUE);
+	return TRUE;
 }
 
-static bool_t
-authunix_refresh(auth)
-	register AUTH *auth;
+static bool_t authunix_refresh(register AUTH *auth)
 {
 	register struct audata *au = AUTH_PRIVATE(auth);
 	struct authunix_parms aup;
@@ -317,12 +300,10 @@ done:
 	xdrs.x_op = XDR_FREE;
 	(void)xdr_authunix_parms(&xdrs, &aup);
 	XDR_DESTROY(&xdrs);
-	return (stat);
+	return stat;
 }
 
-static void
-authunix_destroy(auth)
-	register AUTH *auth;
+static void authunix_destroy(register AUTH *auth)
 {
 	register struct audata *au = AUTH_PRIVATE(auth);
 
@@ -343,9 +324,7 @@ authunix_destroy(auth)
  * Marshals (pre-serializes) an auth struct.
  * sets private data, au_marshed and au_mpos
  */
-static void
-marshal_new_auth(auth)
-	register AUTH *auth;
+static void marshal_new_auth(register AUTH *auth)
 {
 	XDR		xdr_stream;
 	register XDR	*xdrs = &xdr_stream;

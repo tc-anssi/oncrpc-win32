@@ -78,12 +78,7 @@ void clnt_perror();
  * Set a mapping between program,version and port.
  * Calls the pmap service remotely to do the mapping.
  */
-bool_t
-pmap_set(program, version, protocol, port)
-	u_long program;
-	u_long version;
-	int protocol;
-	u_short port;
+bool_t pmap_set(u_long program,	u_long version,	int protocol,	u_short port)
 {
 	struct sockaddr_in myaddress;
 	int socket = -1;
@@ -95,7 +90,7 @@ pmap_set(program, version, protocol, port)
 	client = clntudp_bufcreate(&myaddress, PMAPPROG, PMAPVERS,
 	    timeout, &socket, RPCSMALLMSGSIZE, RPCSMALLMSGSIZE);
 	if (client == (CLIENT *)NULL)
-		return (FALSE);
+		return FALSE;
 	parms.pm_prog = program;
 	parms.pm_vers = version;
 	parms.pm_prot = protocol;
@@ -103,25 +98,22 @@ pmap_set(program, version, protocol, port)
 	if (CLNT_CALL(client, PMAPPROC_SET, xdr_pmap, &parms, xdr_bool, &rslt,
 	    tottimeout) != RPC_SUCCESS) {
 		clnt_perror(client, "Cannot register service");
-		return (FALSE);
+		return FALSE;
 	}
 	CLNT_DESTROY(client);
 #ifdef WIN32
-	(void)closesocket(socket);
+	closesocket(socket);
 #else
-	(void)close(socket);
+	close(socket);
 #endif
-	return (rslt);
+	return rslt;
 }
 
 /*
  * Remove the mapping between program,version and port.
  * Calls the pmap service remotely to do the un-mapping.
  */
-bool_t
-pmap_unset(program, version)
-	u_long program;
-	u_long version;
+bool_t pmap_unset(u_long program,	u_long version)
 {
 	struct sockaddr_in myaddress;
 	int socket = -1;
@@ -133,7 +125,7 @@ pmap_unset(program, version)
 	client = clntudp_bufcreate(&myaddress, PMAPPROG, PMAPVERS,
 	    timeout, &socket, RPCSMALLMSGSIZE, RPCSMALLMSGSIZE);
 	if (client == (CLIENT *)NULL)
-		return (FALSE);
+		return FALSE;
 	parms.pm_prog = program;
 	parms.pm_vers = version;
 	parms.pm_port = parms.pm_prot = 0;
@@ -141,9 +133,9 @@ pmap_unset(program, version)
 	    tottimeout);
 	CLNT_DESTROY(client);
 #ifdef WIN32
-	(void)closesocket(socket);
+	closesocket(socket);
 #else
-	(void)close(socket);
+	close(socket);
 #endif
-	return (rslt);
+	return rslt;
 }

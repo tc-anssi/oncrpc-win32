@@ -113,10 +113,7 @@ static struct {
  * There is an assumption that any flavour less than AUTH_NULL is
  * invalid.
  */
-enum auth_stat
-_authenticate(rqst, msg)
-	register struct svc_req *rqst;
-	struct rpc_msg *msg;
+enum auth_stat _authenticate(register struct svc_req *rqst,	struct rpc_msg *msg)
 {
 	register int cred_flavor;
 
@@ -131,11 +128,9 @@ _authenticate(rqst, msg)
 	return (AUTH_REJECTEDCRED);
 }
 
-enum auth_stat
-_svcauth_null(/*rqst, msg*/)
+enum auth_stat _svcauth_null(/*rqst, msg*/)
 	/*struct svc_req *rqst;
 	struct rpc_msg *msg;*/
 {
-
-	return (AUTH_OK);
+	return AUTH_OK;
 }

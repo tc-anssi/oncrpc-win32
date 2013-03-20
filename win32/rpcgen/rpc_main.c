@@ -82,6 +82,8 @@ static char sccsid[] = "@(#)rpc_main.c 1.7 87/06/24 (C) 1987 SMI";
 #include "rpc_scan.h"
 #endif
 
+#include "rpc_main.h"
+
 #define EXTEND	1		/* alias for TRUE */
 
 struct commandline {
@@ -112,10 +114,11 @@ static char *allv[] = {
 };
 static int allc = sizeof(allv)/sizeof(allv[0]);
 
-main(argc, argv)
-	int argc;
-	char *argv[];
-
+int
+main(
+	int argc,
+	char *argv[]
+  )
 {
 	struct commandline cmd;
 
@@ -156,9 +159,10 @@ main(argc, argv)
  * add extension to filename 
  */
 static char *
-extendfile(file, ext)
-	char *file;
-	char *ext;
+extendfile(
+	char *file,
+	char *ext
+  )
 {
 #ifdef WIN32
 	int i;
@@ -189,10 +193,11 @@ extendfile(file, ext)
 /*
  * Open output file with given extension 
  */
-static
-open_output(infile, outfile)
-	char *infile;
-	char *outfile;
+static void
+open_output(
+	char *infile,
+	char *outfile
+  )
 {
 	if (outfile == NULL) {
 		fout = stdout;
@@ -215,10 +220,11 @@ open_output(infile, outfile)
 /*
  * Open input file with given define for C-preprocessor 
  */
-static
-open_input(infile, define)
-	char *infile;
-	char *define;
+static void
+open_input(
+	char *infile,
+	char *define
+  )
 {
 #ifdef WIN32
 #ifdef __BORLANDC__
@@ -280,12 +286,13 @@ open_input(infile, define)
 /*
  * Compile into an XDR routine output file
  */
-static
-c_output(infile, define, extend, outfile)
-	char *infile;
-	char *define;
-	int extend;
-	char *outfile;
+static void
+c_output(
+	char *infile,
+	char *define,
+	int extend,
+	char *outfile
+  )
 {
 	definition *def;
 	char *include;
@@ -312,12 +319,13 @@ c_output(infile, define, extend, outfile)
 /*
  * Compile into an XDR header file
  */
-static
-h_output(infile, define, extend, outfile)
-	char *infile;
-	char *define;
-	int extend;
-	char *outfile;
+static void
+h_output(
+	char *infile,
+	char *define,
+	int extend,
+	char *outfile
+  )
 {
 	definition *def;
 	char *outfilename;
@@ -345,15 +353,16 @@ h_output(infile, define, extend, outfile)
 /*
  * Compile into an RPC service
  */
-static
-s_output(argc, argv, infile, define, extend, outfile, nomain)
-	int argc;
-	char *argv[];
-	char *infile;
-	char *define;
-	int extend;
-	char *outfile;
-	int nomain;
+static void
+s_output(
+	int argc,
+	char *argv[],
+	char *infile,
+	char *define,
+	int extend,
+	char *outfile,
+	int nomain
+  )
 {
 	char *include;
 	definition *def;
@@ -388,12 +397,13 @@ s_output(argc, argv, infile, define, extend, outfile, nomain)
 	}
 }
 
-static
-l_output(infile, define, extend, outfile)
-	char *infile;
-	char *define;
-	int extend;
-	char *outfile;
+static void
+l_output(
+	char *infile,
+	char *define,
+	int extend,
+	char *outfile
+  )
 {
 	char *include;
 	definition *def;
@@ -422,11 +432,11 @@ l_output(infile, define, extend, outfile)
 /*
  * Perform registrations for service output 
  */
-static
-do_registers(argc, argv)
-	int argc;
-	char *argv[];
-
+static void
+do_registers(
+	int argc,
+	char *argv[]
+  )
 {
 	int i;
 
@@ -441,12 +451,12 @@ do_registers(argc, argv)
 /*
  * Parse command line arguments 
  */
-static
-parseargs(argc, argv, cmd)
-	int argc;
-	char *argv[];
-	struct commandline *cmd;
-
+static int
+parseargs(
+	int argc,
+	char *argv[],
+	struct commandline *cmd
+  )
 {
 	int i;
 	int j;

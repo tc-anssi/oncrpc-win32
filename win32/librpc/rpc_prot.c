@@ -79,25 +79,18 @@ static char sccsid[] = "@(#)rpc_prot.c 1.36 87/08/11 Copyr 1984 Sun Micro";
  * XDR an opaque authentication struct
  * (see auth.h)
  */
-bool_t
-xdr_opaque_auth(xdrs, ap)
-	register XDR *xdrs;
-	register struct opaque_auth *ap;
+bool_t xdr_opaque_auth(register XDR *xdrs, register struct opaque_auth *ap)
 {
-
 	if (xdr_enum(xdrs, &(ap->oa_flavor)))
 		return (xdr_bytes(xdrs, &ap->oa_base,
 			&ap->oa_length, MAX_AUTH_BYTES));
-	return (FALSE);
+	return FALSE;
 }
 
 /*
  * XDR a DES block
  */
-bool_t
-xdr_des_block(xdrs, blkp)
-	register XDR *xdrs;
-	register des_block *blkp;
+bool_t xdr_des_block(register XDR *xdrs, register des_block *blkp)
 {
 	return (xdr_opaque(xdrs, (caddr_t)blkp, sizeof(des_block)));
 }
@@ -107,17 +100,13 @@ xdr_des_block(xdrs, blkp)
 /*
  * XDR the MSG_ACCEPTED part of a reply message union
  */
-bool_t 
-xdr_accepted_reply(xdrs, ar)
-	register XDR *xdrs;   
-	register struct accepted_reply *ar;
+bool_t xdr_accepted_reply(register XDR *xdrs,	register struct accepted_reply *ar)
 {
-
 	/* personalized union, rather than calling xdr_union */
 	if (! xdr_opaque_auth(xdrs, &(ar->ar_verf)))
-		return (FALSE);
+		return FALSE;
 	if (! xdr_enum(xdrs, (enum_t *)&(ar->ar_stat)))
-		return (FALSE);
+		return FALSE;
 	switch (ar->ar_stat) {
 
 	case SUCCESS:
@@ -125,35 +114,31 @@ xdr_accepted_reply(xdrs, ar)
 
 	case PROG_MISMATCH:
 		if (! xdr_u_long(xdrs, &(ar->ar_vers.low)))
-			return (FALSE);
+			return FALSE;
 		return (xdr_u_long(xdrs, &(ar->ar_vers.high)));
 	}
-	return (TRUE);  /* TRUE => open ended set of problems */
+	return TRUE;  /* TRUE => open ended set of problems */
 }
 
 /*
  * XDR the MSG_DENIED part of a reply message union
  */
-bool_t 
-xdr_rejected_reply(xdrs, rr)
-	register XDR *xdrs;
-	register struct rejected_reply *rr;
+bool_t xdr_rejected_reply(register XDR *xdrs,	register struct rejected_reply *rr)
 {
-
 	/* personalized union, rather than calling xdr_union */
 	if (! xdr_enum(xdrs, (enum_t *)&(rr->rj_stat)))
-		return (FALSE);
+		return FALSE;
 	switch (rr->rj_stat) {
 
 	case RPC_MISMATCH:
 		if (! xdr_u_long(xdrs, &(rr->rj_vers.low)))
-			return (FALSE);
+			return FALSE;
 		return (xdr_u_long(xdrs, &(rr->rj_vers.high)));
 
 	case AUTH_ERROR:
 		return (xdr_enum(xdrs, (enum_t *)&(rr->rj_why)));
 	}
-	return (FALSE);
+	return FALSE;
 }
 
 static struct xdr_discrim reply_dscrm[3] = {
@@ -164,10 +149,7 @@ static struct xdr_discrim reply_dscrm[3] = {
 /*
  * XDR a reply message
  */
-bool_t
-xdr_replymsg(xdrs, rmsg)
-	register XDR *xdrs;
-	register struct rpc_msg *rmsg;
+bool_t xdr_replymsg(register XDR *xdrs,	register struct rpc_msg *rmsg)
 {
 	if (
 	    xdr_u_long(xdrs, &(rmsg->rm_xid)) && 
@@ -175,7 +157,7 @@ xdr_replymsg(xdrs, rmsg)
 	    (rmsg->rm_direction == REPLY) )
 		return (xdr_union(xdrs, (enum_t *)&(rmsg->rm_reply.rp_stat),
 		   (caddr_t)&(rmsg->rm_reply.ru), reply_dscrm, NULL_xdrproc_t));
-	return (FALSE);
+	return FALSE;
 }
 
 
@@ -184,12 +166,8 @@ xdr_replymsg(xdrs, rmsg)
  * The fields include: rm_xid, rm_direction, rpcvers, prog, and vers.
  * The rm_xid is not really static, but the user can easily munge on the fly.
  */
-bool_t
-xdr_callhdr(xdrs, cmsg)
-	register XDR *xdrs;
-	register struct rpc_msg *cmsg;
+bool_t xdr_callhdr(register XDR *xdrs, register struct rpc_msg *cmsg)
 {
-
 	cmsg->rm_direction = CALL;
 	cmsg->rm_call.cb_rpcvers = RPC_MSG_VERSION;
 	if (
@@ -199,17 +177,13 @@ xdr_callhdr(xdrs, cmsg)
 	    xdr_u_long(xdrs, &(cmsg->rm_call.cb_rpcvers)) &&
 	    xdr_u_long(xdrs, &(cmsg->rm_call.cb_prog)) )
 	    return (xdr_u_long(xdrs, &(cmsg->rm_call.cb_vers)));
-	return (FALSE);
+	return FALSE;
 }
 
 /* ************************** Client utility routine ************* */
 
-static void
-accepted(acpt_stat, error)
-	register enum accept_stat acpt_stat;
-	register struct rpc_err *error;
+static void accepted(register enum accept_stat acpt_stat,	register struct rpc_err *error)
 {
-
 	switch (acpt_stat) {
 
 	case PROG_UNAVAIL:
@@ -242,12 +216,8 @@ accepted(acpt_stat, error)
 	error->re_lb.s2 = (long)acpt_stat;
 }
 
-static void 
-rejected(rjct_stat, error)
-	register enum reject_stat rjct_stat;
-	register struct rpc_err *error;
+static void rejected(register enum reject_stat rjct_stat,	register struct rpc_err *error)
 {
-
 	switch (rjct_stat) {
 
 	case RPC_VERSMISMATCH:
@@ -267,12 +237,8 @@ rejected(rjct_stat, error)
 /*
  * given a reply message, fills in the error
  */
-void
-_seterr_reply(msg, error)
-	register struct rpc_msg *msg;
-	register struct rpc_err *error;
+void _seterr_reply(register struct rpc_msg *msg, register struct rpc_err *error)
 {
-
 	/* optimized for normal, SUCCESSful case */
 	switch (msg->rm_reply.rp_stat) {
 

@@ -96,9 +96,7 @@ static char RPCDB[1024];
 static char RPCDB[] = "/etc/rpc";
 #endif
 
-void
-setrpcent(f)
-	int f;
+void setrpcent(int f)
 {
 	register struct rpcdata *d = _rpcdata();
 
@@ -114,8 +112,7 @@ setrpcent(f)
 	d->stayopen |= f;
 }
 
-void
-endrpcent()
+void endrpcent()
 {
 	register struct rpcdata *d = _rpcdata();
 
@@ -131,24 +128,21 @@ endrpcent()
 	}
 }
 
-struct rpcent *
-getrpcent()
+struct rpcent *getrpcent()
 {
 	char *key = NULL, *val = NULL;
 	register struct rpcdata *d = _rpcdata();
 
 	if (d == 0)
-		return(NULL);
+		return NULL;
 	if (d->rpcf == NULL && (d->rpcf = fopen(RPCDB, "r")) == NULL)
-		return (NULL);
+		return NULL;
     if (fgets(d->line, BUFSIZ, d->rpcf) == NULL)
-		return (NULL);
+		return NULL;
 	return interpret(d->line, strlen(d->line));
 }
 
-static struct rpcent *
-interpret(val, len)
-	char *val;
+static struct rpcent *interpret(char *val, int len)
 {
 	register struct rpcdata *d = _rpcdata();
 	char *p;
@@ -160,13 +154,13 @@ interpret(val, len)
 	p = d->line;
 	d->line[len] = '\n';
 	if (*p == '#')
-		return (getrpcent());
+		return getrpcent();
 	cp = index(p, '#');
 	if (cp == NULL)
     {
 		cp = index(p, '\n');
 		if (cp == NULL)
-			return (getrpcent());
+			return getrpcent();
 	}
 	*cp = '\0';
 	cp = index(p, ' ');
@@ -174,7 +168,7 @@ interpret(val, len)
     {
 		cp = index(p, '\t');
 		if (cp == NULL)
-			return (getrpcent());
+			return getrpcent();
 	}
 	*cp++ = '\0';
 	/* THIS STUFF IS INTERNET SPECIFIC */
@@ -213,8 +207,7 @@ interpret(val, len)
 	return (&d->rpc);
 }
 
-static struct rpcdata *
-_rpcdata()
+static struct rpcdata *_rpcdata()
 {
 	register struct rpcdata *d = rpcdata;
 
@@ -231,31 +224,27 @@ _rpcdata()
 		d = (struct rpcdata *)calloc(1, sizeof (struct rpcdata));
 		rpcdata = d;
 	}
-	return (d);
+	return d;
 }
 
-struct rpcent *
-getrpcbynumber(number)
-	register int number;
+struct rpcent *getrpcbynumber(register int number)
 {
 	register struct rpcdata *d = _rpcdata();
 	register struct rpcent *p;
 	char *val = NULL;
 
 	if (d == 0)
-		return (0);
+		return 0;
 	setrpcent(0);
 	while (p = getrpcent()) {
 		if (p->r_number == number)
 			break;
 	}
 	endrpcent();
-	return (p);
+	return p;
 }
 
-struct rpcent *
-getrpcbyname(name)
-	char *name;
+struct rpcent *getrpcbyname(char *name)
 {
 	struct rpcent *rpc;
 	char **rp;
@@ -263,12 +252,12 @@ getrpcbyname(name)
 	setrpcent(0);
 	while(rpc = getrpcent()) {
 		if (strcmp(rpc->r_name, name) == 0)
-			return (rpc);
+			return rpc;
 		for (rp = rpc->r_aliases; *rp != NULL; rp++) {
 			if (strcmp(*rp, name) == 0)
-				return (rpc);
+				return rpc;
 		}
 	}
 	endrpcent();
-	return (NULL);
+	return NULL;
 }

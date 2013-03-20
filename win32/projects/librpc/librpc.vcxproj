@@ -77,6 +77,20 @@
     <ClCompile Include="..\..\librpc\Xdr_strarr.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\rpc\auth.h" />
+    <ClInclude Include="..\..\include\rpc\auth_uni.h" />
+    <ClInclude Include="..\..\include\rpc\bcopy.h" />
+    <ClInclude Include="..\..\include\rpc\clnt.h" />
+    <ClInclude Include="..\..\include\rpc\Netdb.h" />
+    <ClInclude Include="..\..\include\rpc\Pmap_cln.h" />
+    <ClInclude Include="..\..\include\rpc\Pmap_pro.h" />
+    <ClInclude Include="..\..\include\rpc\pmap_rmt.h" />
+    <ClInclude Include="..\..\include\rpc\Rpc.h" />
+    <ClInclude Include="..\..\include\rpc\rpc_msg.h" />
+    <ClInclude Include="..\..\include\rpc\svc.h" />
+    <ClInclude Include="..\..\include\rpc\svc_auth.h" />
+    <ClInclude Include="..\..\include\rpc\types.h" />
+    <ClInclude Include="..\..\include\rpc\xdr.h" />
     <ClInclude Include="..\..\librpc\all_oncrpc.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -232,7 +246,7 @@ copy "$(TargetDir)\*.dll" "$(SolutionDir)..\..\bin\"</Command>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;ONCRPCDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;ONCRPCDLL;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\include</AdditionalIncludeDirectories>
       <CompileAs>Default</CompileAs>
     </ClCompile>

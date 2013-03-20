@@ -98,8 +98,7 @@ static struct authnone_private {
 	u_int	mcnt;
 } *authnone_private;
 
-AUTH *
-authnone_create()
+AUTH *authnone_create()
 {
 	register struct authnone_private *ap = authnone_private;
 	XDR xdr_stream;
@@ -126,10 +125,7 @@ authnone_create()
 }
 
 /*ARGSUSED*/
-static bool_t
-authnone_marshal(client, xdrs)
-	AUTH *client;
-	XDR *xdrs;
+static bool_t authnone_marshal(AUTH *client, XDR *xdrs)
 {
 	register struct authnone_private *ap = authnone_private;
 
@@ -139,26 +135,20 @@ authnone_marshal(client, xdrs)
 	    ap->marshalled_client, ap->mcnt));
 }
 
-static void 
-authnone_verf()
+static void authnone_verf()
 {
 }
 
-static bool_t
-authnone_validate()
+static bool_t authnone_validate()
 {
-
-	return (TRUE);
+	return TRUE;
 }
 
-static bool_t
-authnone_refresh()
+static bool_t authnone_refresh()
 {
-
-	return (FALSE);
+	return FALSE;
 }
 
-static void
-authnone_destroy()
+static void authnone_destroy()
 {
 }

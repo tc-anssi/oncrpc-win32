@@ -74,13 +74,11 @@ static char sccsid[] = "@(#)get_myaddress.c 1.4 87/08/11 Copyr 1984 Sun Micro";
  * don't use gethostbyname, which would invoke yellow pages
  */
 
-void
-get_myaddress(addr)
-	struct sockaddr_in *addr;
+void get_myaddress(struct sockaddr_in *addr)
 {
 #ifdef WIN32
-struct hostent	*Hostent;
-char my_name[MAX_NAME_LEN];
+  struct hostent	*Hostent;
+  char my_name[MAX_NAME_LEN];
 
 	gethostname(my_name, MAX_NAME_LEN);
 	Hostent = gethostbyname(my_name);

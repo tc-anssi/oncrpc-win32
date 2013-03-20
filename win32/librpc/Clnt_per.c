@@ -77,8 +77,7 @@ extern char *strcpy();
 
 static char *buf;
 
-static char *
-_buf()
+static char *_buf()
 {
 
 	if (buf == 0)
@@ -89,10 +88,7 @@ _buf()
 /*
  * Print reply error info
  */
-char *
-clnt_sperror(rpch, s)
-	CLIENT *rpch;
-	char *s;
+char *clnt_sperror(CLIENT *rpch, char *s)
 {
 	struct rpc_err e;
 	void clnt_perrno();
@@ -101,7 +97,7 @@ clnt_sperror(rpch, s)
 	char *strstart = str;
 
 	if (str == 0)
-		return (0);
+		return 0;
 	CLNT_GETERR(rpch, &e);
 
 	(void) sprintf(str, "%s: ", s);
@@ -175,14 +171,11 @@ clnt_sperror(rpch, s)
 		str += strlen(str);
 		break;
 	}
-	(void) sprintf(str, "\n");
-	return(strstart) ;
+	sprintf(str, "\n");
+	return strstart;
 }
 
-void
-clnt_perror(rpch, s)
-	CLIENT *rpch;
-	char *s;
+void clnt_perror(CLIENT *rpch, char *s)
 {
 #ifdef WIN32
 	nt_rpc_report(clnt_sperror(rpch,s));
@@ -240,23 +233,19 @@ static struct rpc_errtab  rpc_errlist[] = {
 /*
  * This interface for use by clntrpc
  */
-char *
-clnt_sperrno(stat)
-	enum clnt_stat stat;
+char *clnt_sperrno(enum clnt_stat stat)
 {
 	int i;
 
 	for (i = 0; i < sizeof(rpc_errlist)/sizeof(struct rpc_errtab); i++) {
 		if (rpc_errlist[i].status == stat) {
-			return (rpc_errlist[i].message);
+			return rpc_errlist[i].message;
 		}
 	}
-	return ("RPC: (unknown error code)");
+	return "RPC: (unknown error code)";
 }
 
-void
-clnt_perrno(num)
-	enum clnt_stat num;
+void clnt_perrno(enum clnt_stat num)
 {
 #ifdef WIN32
 	nt_rpc_report(clnt_sperrno(num));
@@ -266,9 +255,7 @@ clnt_perrno(num)
 }
 
 
-char *
-clnt_spcreateerror(s)
-	char *s;
+char *clnt_spcreateerror(char *s)
 {
 	extern int sys_nerr;
 #ifndef WIN32
@@ -277,38 +264,36 @@ clnt_spcreateerror(s)
 	char *str = _buf();
 
 	if (str == 0)
-		return(0);
-	(void) sprintf(str, "%s: ", s);
-	(void) strcat(str, clnt_sperrno(rpc_createerr.cf_stat));
+		return 0;
+	sprintf(str, "%s: ", s);
+	strcat(str, clnt_sperrno(rpc_createerr.cf_stat));
 	switch (rpc_createerr.cf_stat) {
 	case RPC_PMAPFAILURE:
-		(void) strcat(str, " - ");
-		(void) strcat(str,
+		strcat(str, " - ");
+		strcat(str,
 		    clnt_sperrno(rpc_createerr.cf_error.re_status));
 		break;
 
 	case RPC_SYSTEMERROR:
-		(void) strcat(str, " - ");
+		strcat(str, " - ");
 		if (rpc_createerr.cf_error.re_errno > 0
 		    && rpc_createerr.cf_error.re_errno < sys_nerr)
-			(void) strcat(str,
+		  strcat(str,
 #ifdef WIN32
 			    "internal rpc error");
 #else
 			    sys_errlist[rpc_createerr.cf_error.re_errno]);
 #endif
 		else
-			(void) sprintf(&str[strlen(str)], "Error %d",
+			sprintf(&str[strlen(str)], "Error %d",
 			    rpc_createerr.cf_error.re_errno);
 		break;
 	}
-	(void) strcat(str, "\n");
-	return (str);
+	strcat(str, "\n");
+	return str;
 }
 
-void
-clnt_pcreateerror(s)
-	char *s;
+void clnt_pcreateerror(char *s)
 {
 #ifdef WIN32
 	nt_rpc_report(clnt_spcreateerror(s));
@@ -341,16 +326,14 @@ static struct auth_errtab auth_errlist[] = {
 		"Failed (unspecified error)" },
 };
 
-static char *
-auth_errmsg(stat)
-	enum auth_stat stat;
+static char *auth_errmsg(enum auth_stat stat)
 {
 	int i;
 
 	for (i = 0; i < sizeof(auth_errlist)/sizeof(struct auth_errtab); i++) {
 		if (auth_errlist[i].status == stat) {
-			return(auth_errlist[i].message);
+			return auth_errlist[i].message;
 		}
 	}
-	return(NULL);
+	return NULL;
 }

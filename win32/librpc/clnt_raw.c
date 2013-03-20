@@ -106,10 +106,7 @@ void	svc_getreq();
 /*
  * Create a client handle for memory based rpc.
  */
-CLIENT *
-clntraw_create(prog, vers)
-	u_long prog;
-	u_long vers;
+CLIENT *clntraw_create(u_long prog,	u_long vers)
 {
 	register struct clntraw_private *clp = clntraw_private;
 	struct rpc_msg call_msg;
@@ -119,7 +116,7 @@ clntraw_create(prog, vers)
 	if (clp == 0) {
 		clp = (struct clntraw_private *)calloc(1, sizeof (*clp));
 		if (clp == 0)
-			return (0);
+			return 0;
 		clntraw_private = clp;
 	}
 	/*
@@ -146,18 +143,11 @@ clntraw_create(prog, vers)
 	 */
 	client->cl_ops = &client_ops;
 	client->cl_auth = authnone_create();
-	return (client);
+	return client;
 }
 
-static enum clnt_stat 
-clntraw_call(h, proc, xargs, argsp, xresults, resultsp, timeout)
-	CLIENT *h;
-	u_long proc;
-	xdrproc_t xargs;
-	caddr_t argsp;
-	xdrproc_t xresults;
-	caddr_t resultsp;
-	struct timeval timeout;
+static enum clnt_stat clntraw_call(CLIENT *h,	u_long proc, xdrproc_t xargs,	caddr_t argsp, xdrproc_t xresults,
+	                                 caddr_t resultsp, struct timeval timeout)
 {
 	register struct clntraw_private *clp = clntraw_private;
 	register XDR *xdrs = &clp->xdr_stream;
@@ -166,7 +156,7 @@ clntraw_call(h, proc, xargs, argsp, xresults, resultsp, timeout)
 	struct rpc_err error;
 
 	if (clp == 0)
-		return (RPC_FAILED);
+		return RPC_FAILED;
 call_again:
 	/*
 	 * send request
@@ -178,9 +168,9 @@ call_again:
 	    (! XDR_PUTLONG(xdrs, (long *)&proc)) ||
 	    (! AUTH_MARSHALL(h->cl_auth, xdrs)) ||
 	    (! (*xargs)(xdrs, argsp))) {
-		return (RPC_CANTENCODEARGS);
+		return RPC_CANTENCODEARGS;
 	}
-	(void)XDR_GETPOS(xdrs);  /* called just to cause overhead */
+	XDR_GETPOS(xdrs);  /* called just to cause overhead */
 
 	/*
 	 * We have to call server input routine here because this is
@@ -197,7 +187,7 @@ call_again:
 	msg.acpted_rply.ar_results.where = resultsp;
 	msg.acpted_rply.ar_results.proc = xresults;
 	if (! xdr_replymsg(xdrs, &msg))
-		return (RPC_CANTDECODERES);
+		return RPC_CANTDECODERES;
 	_seterr_reply(&msg, &error);
 	status = error.re_status;
 
@@ -217,24 +207,19 @@ call_again:
 		}
 		if (msg.acpted_rply.ar_verf.oa_base != NULL) {
 			xdrs->x_op = XDR_FREE;
-			(void)xdr_opaque_auth(xdrs, &(msg.acpted_rply.ar_verf));
+			xdr_opaque_auth(xdrs, &(msg.acpted_rply.ar_verf));
 		}
 	}
 
-	return (status);
+	return status;
 }
 
-static void
-clntraw_geterr()
+static void clntraw_geterr()
 {
 }
 
 
-static bool_t
-clntraw_freeres(cl, xdr_res, res_ptr)
-	CLIENT *cl;
-	xdrproc_t xdr_res;
-	caddr_t res_ptr;
+static bool_t clntraw_freeres(CLIENT *cl,	xdrproc_t xdr_res, caddr_t res_ptr)
 {
 	register struct clntraw_private *clp = clntraw_private;
 	register XDR *xdrs = &clp->xdr_stream;
@@ -243,24 +228,21 @@ clntraw_freeres(cl, xdr_res, res_ptr)
 	if (clp == 0)
 	{
 		rval = (bool_t) RPC_FAILED;
-		return (rval);
+		return rval;
 	}
 	xdrs->x_op = XDR_FREE;
 	return ((*xdr_res)(xdrs, res_ptr));
 }
 
-static void
-clntraw_abort()
+static void clntraw_abort()
 {
 }
 
-static bool_t
-clntraw_control()
+static bool_t clntraw_control()
 {
-	return (FALSE);
+	return FALSE;
 }
 
-static void
-clntraw_destroy()
+static void clntraw_destroy()
 {
 }

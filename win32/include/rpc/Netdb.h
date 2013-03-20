@@ -57,6 +57,8 @@
  */
 /*	@(#)rpc.h 1.8 87/07/24 SMI	*/
 
+#ifndef __NETDB_HEADER__
+#define __NETDB_HEADER__
 /* Really belongs in <netdb.h> */
 #include <rpc/types.h>
 
@@ -72,3 +74,5 @@ struct rpcent {
 ONCRPCAPI struct rpcent *getrpcbyname();
 ONCRPCAPI struct rpcent *getrpcbynumber();
 ONCRPCAPI struct rpcent *getrpcent();
+
+#endif //__NETDB_HEADER__

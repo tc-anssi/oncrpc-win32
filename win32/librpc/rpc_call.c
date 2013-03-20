@@ -70,20 +70,17 @@ static char sccsid[] = "@(#)rpc_callmsg.c 1.4 87/08/11 Copyr 1984 Sun Micro";
 /*
  * XDR a call message
  */
-bool_t
-xdr_callmsg(xdrs, cmsg)
-	register XDR *xdrs;
-	register struct rpc_msg *cmsg;
+bool_t xdr_callmsg(register XDR *xdrs, register struct rpc_msg *cmsg)
 {
 	register long *buf;
 	register struct opaque_auth *oa;
 
 	if (xdrs->x_op == XDR_ENCODE) {
 		if (cmsg->rm_call.cb_cred.oa_length > MAX_AUTH_BYTES) {
-			return (FALSE);
+			return FALSE;
 		}
 		if (cmsg->rm_call.cb_verf.oa_length > MAX_AUTH_BYTES) {
-			return (FALSE);
+			return FALSE;
 		}
 		buf = XDR_INLINE(xdrs, 8 * BYTES_PER_XDR_UNIT
 			+ RNDUP(cmsg->rm_call.cb_cred.oa_length)
@@ -93,11 +90,11 @@ xdr_callmsg(xdrs, cmsg)
 			IXDR_PUT_LONG(buf, cmsg->rm_xid);
 			IXDR_PUT_ENUM(buf, cmsg->rm_direction);
 			if (cmsg->rm_direction != CALL) {
-				return (FALSE);
+				return FALSE;
 			}
 			IXDR_PUT_LONG(buf, cmsg->rm_call.cb_rpcvers);
 			if (cmsg->rm_call.cb_rpcvers != RPC_MSG_VERSION) {
-				return (FALSE);
+				return FALSE;
 			}
 			IXDR_PUT_LONG(buf, cmsg->rm_call.cb_prog);
 			IXDR_PUT_LONG(buf, cmsg->rm_call.cb_vers);
@@ -118,7 +115,7 @@ xdr_callmsg(xdrs, cmsg)
 				buf += RNDUP(oa->oa_length) / sizeof (long);
 				*/
 			}
-			return (TRUE);
+			return TRUE;
 		}
 	}
 	if (xdrs->x_op == XDR_DECODE) {
@@ -127,11 +124,11 @@ xdr_callmsg(xdrs, cmsg)
 			cmsg->rm_xid = IXDR_GET_LONG(buf);
 			cmsg->rm_direction = IXDR_GET_ENUM(buf, enum msg_type);
 			if (cmsg->rm_direction != CALL) {
-				return (FALSE);
+				return FALSE;
 			}
 			cmsg->rm_call.cb_rpcvers = IXDR_GET_LONG(buf);
 			if (cmsg->rm_call.cb_rpcvers != RPC_MSG_VERSION) {
-				return (FALSE);
+				return FALSE;
 			}
 			cmsg->rm_call.cb_prog = IXDR_GET_LONG(buf);
 			cmsg->rm_call.cb_vers = IXDR_GET_LONG(buf);
@@ -141,7 +138,7 @@ xdr_callmsg(xdrs, cmsg)
 			oa->oa_length = IXDR_GET_LONG(buf);
 			if (oa->oa_length) {
 				if (oa->oa_length > MAX_AUTH_BYTES) {
-					return (FALSE);
+					return FALSE;
 				}
 				if (oa->oa_base == NULL) {
 					oa->oa_base = (caddr_t)
@@ -151,7 +148,7 @@ xdr_callmsg(xdrs, cmsg)
 				if (buf == NULL) {
 					if (xdr_opaque(xdrs, oa->oa_base,
 					    oa->oa_length) == FALSE) {
-						return (FALSE);
+						return FALSE;
 					}
 				} else {
 					bcopy((caddr_t)buf, oa->oa_base,
@@ -167,7 +164,7 @@ xdr_callmsg(xdrs, cmsg)
 			if (buf == NULL) {
 				if (xdr_enum(xdrs, &oa->oa_flavor) == FALSE ||
 				    xdr_u_int(xdrs, &oa->oa_length) == FALSE) {
-					return (FALSE);
+					return FALSE;
 				}
 			} else {
 				oa->oa_flavor = IXDR_GET_ENUM(buf, enum_t);
@@ -175,7 +172,7 @@ xdr_callmsg(xdrs, cmsg)
 			}
 			if (oa->oa_length) {
 				if (oa->oa_length > MAX_AUTH_BYTES) {
-					return (FALSE);
+					return FALSE;
 				}
 				if (oa->oa_base == NULL) {
 					oa->oa_base = (caddr_t)
@@ -185,7 +182,7 @@ xdr_callmsg(xdrs, cmsg)
 				if (buf == NULL) {
 					if (xdr_opaque(xdrs, oa->oa_base,
 					    oa->oa_length) == FALSE) {
-						return (FALSE);
+						return FALSE;
 					}
 				} else {
 					bcopy((caddr_t)buf, oa->oa_base,
@@ -196,7 +193,7 @@ xdr_callmsg(xdrs, cmsg)
 					*/
 				}
 			}
-			return (TRUE);
+			return TRUE;
 		}
 	}
 	if (
@@ -210,6 +207,6 @@ xdr_callmsg(xdrs, cmsg)
 	    xdr_u_long(xdrs, &(cmsg->rm_call.cb_proc)) &&
 	    xdr_opaque_auth(xdrs, &(cmsg->rm_call.cb_cred)) )
 	    return (xdr_opaque_auth(xdrs, &(cmsg->rm_call.cb_verf)));
-	return (FALSE);
+	return FALSE;
 }
 

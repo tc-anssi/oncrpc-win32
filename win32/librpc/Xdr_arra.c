@@ -80,14 +80,13 @@ static char sccsid[] = "@(#)xdr_array.c 1.10 87/08/11 Copyr 1984 Sun Micro";
  * elsize is the size (in bytes) of each element, and elproc is the
  * xdr procedure to call to handle each element of the array.
  */
-bool_t
-xdr_array(xdrs, addrp, sizep, maxsize, elsize, elproc)
-	register XDR *xdrs;
-	caddr_t *addrp;		/* array pointer */
-	u_int *sizep;		/* number of elements */
-	u_int maxsize;		/* max numberof elements */
-	u_int elsize;		/* size in bytes of each element */
-	xdrproc_t elproc;	/* xdr routine to handle each element */
+bool_t xdr_array(register XDR *xdrs,
+	caddr_t *addrp,		/* array pointer */
+	u_int *sizep,		/* number of elements */
+	u_int maxsize,		/* max numberof elements */
+	u_int elsize,		/* size in bytes of each element */
+	xdrproc_t elproc	/* xdr routine to handle each element */
+  )
 {
 	register u_int i;
 	register caddr_t target = *addrp;
@@ -97,11 +96,11 @@ xdr_array(xdrs, addrp, sizep, maxsize, elsize, elproc)
 
 	/* like strings, arrays are really counted arrays */
 	if (! xdr_u_int(xdrs, sizep)) {
-		return (FALSE);
+		return FALSE;
 	}
 	c = *sizep;
 	if ((c > maxsize) && (xdrs->x_op != XDR_FREE)) {
-		return (FALSE);
+		return FALSE;
 	}
 	nodesize = c * elsize;
 
@@ -113,22 +112,22 @@ xdr_array(xdrs, addrp, sizep, maxsize, elsize, elproc)
 		switch (xdrs->x_op) {
 		case XDR_DECODE:
 			if (c == 0)
-				return (TRUE);
+				return TRUE;
 			*addrp = target = mem_alloc(nodesize);
 			if (target == NULL) {
 #ifdef WIN32
 				nt_rpc_report(
 #else
-				(void) fprintf(stderr, 
+				fprintf(stderr, 
 #endif
 					"xdr_array: out of memory\n");
-				return (FALSE);
+				return FALSE;
 			}
 			bzero(target, nodesize);
 			break;
 
 		case XDR_FREE:
-			return (TRUE);
+			return TRUE;
 	}
 
 	/*
@@ -150,7 +149,7 @@ xdr_array(xdrs, addrp, sizep, maxsize, elsize, elproc)
 		mem_free(*addrp, nodesize);
 		*addrp = NULL;
 	}
-	return (stat);
+	return stat;
 }
 
 /*
@@ -163,13 +162,7 @@ xdr_array(xdrs, addrp, sizep, maxsize, elsize, elproc)
  * > elemsize: size of each element
  * > xdr_elem: routine to XDR each element
  */
-bool_t
-xdr_vector(xdrs, basep, nelem, elemsize, xdr_elem)
-	register XDR *xdrs;
-	register char *basep;
-	register u_int nelem;
-	register u_int elemsize;
-	register xdrproc_t xdr_elem;
+bool_t xdr_vector(register XDR *xdrs,	register char *basep,	register u_int nelem,	register u_int elemsize, register xdrproc_t xdr_elem)
 {
 	register u_int i;
 	register char *elptr;
@@ -177,10 +170,10 @@ xdr_vector(xdrs, basep, nelem, elemsize, xdr_elem)
 	elptr = basep;
 	for (i = 0; i < nelem; i++) {
 		if (! (*xdr_elem)(xdrs, elptr, LASTUNSIGNED)) {
-			return(FALSE);
+			return FALSE;
 		}
 		elptr += elemsize;
 	}
-	return(TRUE);
+	return TRUE;
 }
 

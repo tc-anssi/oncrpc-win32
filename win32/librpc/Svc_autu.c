@@ -74,10 +74,7 @@ static char sccsid[] = "@(#)svc_auth_unix.c 1.28 88/02/08 Copyr 1984 Sun Micro";
 /*
  * Unix longhand authenticator
  */
-enum auth_stat
-_svcauth_unix(rqst, msg)
-	register struct svc_req *rqst;
-	register struct rpc_msg *msg;
+enum auth_stat _svcauth_unix(register struct svc_req *rqst,	register struct rpc_msg *msg)
 {
 	register enum auth_stat stat;
 	XDR xdrs;
@@ -149,7 +146,7 @@ _svcauth_unix(rqst, msg)
 	stat = AUTH_OK;
 done:
 	XDR_DESTROY(&xdrs);
-	return (stat);
+	return stat;
 }
 
 
@@ -158,10 +155,7 @@ done:
  * Looks up longhand in a cache.
  */
 /*ARGSUSED*/
-enum auth_stat 
-_svcauth_short(rqst, msg)
-	struct svc_req *rqst;
-	struct rpc_msg *msg;
+enum auth_stat _svcauth_short(struct svc_req *rqst,	struct rpc_msg *msg)
 {
-	return (AUTH_REJECTEDCRED);
+	return AUTH_REJECTEDCRED;
 }

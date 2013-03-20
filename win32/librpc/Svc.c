@@ -75,16 +75,11 @@ static char sccsid[] = "@(#)svc.c 1.41 87/10/13 Copyr 1984 Sun Micro";
 extern int errno;
 #endif
 
-#ifdef FD_SETSIZE
 static SVCXPRT **xports;
 #ifdef WIN32
 static int sizeof_xports = FD_SETSIZE;
 #endif
-#else
-#define NOFILE 32
 
-static SVCXPRT *xports[NOFILE];
-#endif /* def FD_SETSIZE */
 
 #define NULL_SVC ((struct svc_callout *)0)
 #define	RQCRED_SIZE	400		/* this size is excessive */
@@ -109,11 +104,9 @@ static struct svc_callout *svc_find();
 /*
  * Activate a transport handle.
  */
-void
-xprt_register(xprt)
-	SVCXPRT *xprt;
+void xprt_register(SVCXPRT *xprt)
 {
-	register int sock = xprt->xp_sock;
+	register SOCKET sock = xprt->xp_sock;
 
 #ifdef FD_SETSIZE
 	if (xports == NULL) {
@@ -159,13 +152,11 @@ xprt_register(xprt)
 /*
  * De-activate a transport handle. 
  */
-void
-xprt_unregister(xprt) 
-	SVCXPRT *xprt;
+void xprt_unregister(SVCXPRT *xprt)
 { 
-	register int sock = xprt->xp_sock;
+	register SOCKET sock = xprt->xp_sock;
 
-#ifdef FD_SETSIZE
+
 #ifdef WIN32
 	if ((xports[sock] == xprt)) {
 		xports[sock] = (SVCXPRT *)0;
@@ -176,12 +167,6 @@ xprt_unregister(xprt)
 		FD_CLR(sock, &svc_fdset);
 #endif
 	}
-#else
-	if ((sock < NOFILE) && (xports[sock] == xprt)) {
-		xports[sock] = (SVCXPRT *)0;
-		svc_fds &= ~(1 << sock);
-	}
-#endif /* def FD_SETSIZE */
 }
 
 
@@ -192,13 +177,7 @@ xprt_unregister(xprt)
  * The dispatch routine will be called when a rpc request for this
  * program number comes in.
  */
-bool_t
-svc_register(xprt, prog, vers, dispatch, protocol)
-	SVCXPRT *xprt;
-	u_long prog;
-	u_long vers;
-	void (*dispatch)();
-	int protocol;
+bool_t svc_register(SVCXPRT *xprt, u_long prog,	u_long vers, void (*dispatch)(), int protocol)
 {
 	struct svc_callout *prev;
 	register struct svc_callout *s;
@@ -206,11 +185,11 @@ svc_register(xprt, prog, vers, dispatch, protocol)
 	if ((s = svc_find(prog, vers, &prev)) != NULL_SVC) {
 		if (s->sc_dispatch == dispatch)
 			goto pmap_it;  /* he is registering another xptr */
-		return (FALSE);
+		return FALSE;
 	}
 	s = (struct svc_callout *)mem_alloc(sizeof(struct svc_callout));
 	if (s == (struct svc_callout *)0) {
-		return (FALSE);
+		return FALSE;
 	}
 	s->sc_prog = prog;
 	s->sc_vers = vers;
@@ -222,16 +201,13 @@ pmap_it:
 	if (protocol) {
 		return (pmap_set(prog, vers, protocol, xprt->xp_port));
 	}
-	return (TRUE);
+	return TRUE;
 }
 
 /*
  * Remove a service program from the callout list.
  */
-void
-svc_unregister(prog, vers)
-	u_long prog;
-	u_long vers;
+void svc_unregister(u_long prog, u_long vers)
 {
 	struct svc_callout *prev;
 	register struct svc_callout *s;
@@ -246,18 +222,14 @@ svc_unregister(prog, vers)
 	s->sc_next = NULL_SVC;
 	mem_free((char *) s, (u_int) sizeof(struct svc_callout));
 	/* now unregister the information with the local binder service */
-	(void)pmap_unset(prog, vers);
+	pmap_unset(prog, vers);
 }
 
 /*
  * Search the callout list for a program number, return the callout
  * struct.
  */
-static struct svc_callout *
-svc_find(prog, vers, prev)
-	u_long prog;
-	u_long vers;
-	struct svc_callout **prev;
+static struct svc_callout *svc_find(u_long prog, u_long vers,	struct svc_callout **prev)
 {
 	register struct svc_callout *s, *p;
 
@@ -269,7 +241,7 @@ svc_find(prog, vers, prev)
 	}
 done:
 	*prev = p;
-	return (s);
+	return s;
 }
 
 /* ******************* REPLY GENERATION ROUTINES  ************ */
@@ -277,11 +249,7 @@ done:
 /*
  * Send a reply to an rpc request
  */
-bool_t
-svc_sendreply(xprt, xdr_results, xdr_location)
-	register SVCXPRT *xprt;
-	xdrproc_t xdr_results;
-	caddr_t xdr_location;
+bool_t svc_sendreply(register SVCXPRT *xprt, xdrproc_t xdr_results,	caddr_t xdr_location)
 {
 	struct rpc_msg rply; 
 
@@ -291,15 +259,13 @@ svc_sendreply(xprt, xdr_results, xdr_location)
 	rply.acpted_rply.ar_stat = SUCCESS;
 	rply.acpted_rply.ar_results.where = xdr_location;
 	rply.acpted_rply.ar_results.proc = xdr_results;
-	return (SVC_REPLY(xprt, &rply)); 
+	return SVC_REPLY(xprt, &rply); 
 }
 
 /*
  * No procedure error reply
  */
-void
-svcerr_noproc(xprt)
-	register SVCXPRT *xprt;
+void svcerr_noproc(register SVCXPRT *xprt)
 {
 	struct rpc_msg rply;
 
@@ -313,9 +279,7 @@ svcerr_noproc(xprt)
 /*
  * Can't decode args error reply
  */
-void
-svcerr_decode(xprt)
-	register SVCXPRT *xprt;
+void svcerr_decode(register SVCXPRT *xprt)
 {
 	struct rpc_msg rply; 
 
@@ -329,9 +293,7 @@ svcerr_decode(xprt)
 /*
  * Some system error
  */
-void
-svcerr_systemerr(xprt)
-	register SVCXPRT *xprt;
+void svcerr_systemerr(register SVCXPRT *xprt)
 {
 	struct rpc_msg rply; 
 
@@ -345,10 +307,7 @@ svcerr_systemerr(xprt)
 /*
  * Authentication error reply
  */
-void
-svcerr_auth(xprt, why)
-	SVCXPRT *xprt;
-	enum auth_stat why;
+void svcerr_auth(SVCXPRT *xprt,	enum auth_stat why)
 {
 	struct rpc_msg rply;
 
@@ -362,20 +321,15 @@ svcerr_auth(xprt, why)
 /*
  * Auth too weak error reply
  */
-void
-svcerr_weakauth(xprt)
-	SVCXPRT *xprt;
+void svcerr_weakauth(SVCXPRT *xprt)
 {
-
 	svcerr_auth(xprt, AUTH_TOOWEAK);
 }
 
 /*
  * Program unavailable error reply
  */
-void 
-svcerr_noprog(xprt)
-	register SVCXPRT *xprt;
+void svcerr_noprog(register SVCXPRT *xprt)
 {
 	struct rpc_msg rply;  
 
@@ -389,11 +343,7 @@ svcerr_noprog(xprt)
 /*
  * Program version mismatch error reply
  */
-void  
-svcerr_progvers(xprt, low_vers, high_vers)
-	register SVCXPRT *xprt; 
-	u_long low_vers;
-	u_long high_vers;
+void svcerr_progvers(register SVCXPRT *xprt, u_long low_vers,	u_long high_vers)
 {
 	struct rpc_msg rply;
 
@@ -424,11 +374,8 @@ svcerr_progvers(xprt, low_vers, high_vers)
  * is mallocated in kernel land.
  */
 
-void
-svc_getreq(rdfds)
-	int rdfds;
+void svc_getreq(int rdfds)
 {
-#ifdef FD_SETSIZE
 #ifdef WIN32
 int i;
 #endif
@@ -448,23 +395,10 @@ int i;
 	readfds.fds_bits[0] = rdfds;
 #endif
 	svc_getreqset(&readfds);
-#else
-	int readfds = rdfds & svc_fds;
-
-	svc_getreqset(&readfds);
-#endif /* def FD_SETSIZE */
 }
 
-void
-svc_getreqset(readfds)
-#ifdef FD_SETSIZE
-	fd_set *readfds;
+void svc_getreqset(fd_set *readfds)
 {
-#else
-	int *readfds;
-{
-    int readfds_local = *readfds;
-#endif /* def FD_SETSIZE */
 	enum xprt_stat stat;
 	struct rpc_msg msg;
 	int prog_found;
@@ -478,7 +412,7 @@ svc_getreqset(readfds)
 	register int setsize;
 	register int bit;
 #endif
-	register int sock;
+	register SOCKET sock;
 	char cred_area[2*MAX_AUTH_BYTES + RQCRED_SIZE];
 	int i;
 
@@ -486,7 +420,6 @@ svc_getreqset(readfds)
 	msg.rm_call.cb_verf.oa_base = &(cred_area[MAX_AUTH_BYTES]);
 	r.rq_clntcred = &(cred_area[2*MAX_AUTH_BYTES]);
 
-#ifdef FD_SETSIZE
 #ifdef WIN32
 	/* Loop through the sockets that have input ready */
 	for ( i=0; (u_int)i<readfds->fd_count; i++ ) {
@@ -501,12 +434,6 @@ svc_getreqset(readfds)
 		/* sock has input waiting */
 		xprt = xports[sock + bit - 1];
 #endif
-#else
-	for (sock = 0; readfds_local != 0; sock++, readfds_local >>= 1) {
-	    if ((readfds_local & 1) != 0) {
-		/* sock has input waiting */
-		xprt = xports[sock];
-#endif /* def FD_SETSIZE */
 		/* now receive msgs from xprtprt (support batch calls) */
 		do {
 			if (SVC_RECV(xprt, &msg)) {

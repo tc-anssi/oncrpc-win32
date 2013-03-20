@@ -79,20 +79,17 @@ static void universal();
 static SVCXPRT *transp;
 struct proglst *pl;
 
-registerrpc(prognum, versnum, procnum, progname, inproc, outproc)
-	char *(*progname)();
-	xdrproc_t inproc, outproc;
+int registerrpc(u_long prognum, u_long versnum, u_long procnum,	char *(*progname)(), xdrproc_t inproc, xdrproc_t outproc)
 {
-
 	if (procnum == NULLPROC) {
 #ifdef WIN32
 		nt_rpc_report(
 		    "can't reassign procedure number 0\n");
 #else
-		(void) fprintf(stderr,
+		fprintf(stderr,
 		    "can't reassign procedure number %d\n", NULLPROC);
 #endif
-		return (-1);
+		return -1;
 	}
 	if (transp == 0) {
 		transp = svcudp_create(RPC_ANYSOCK);
@@ -100,30 +97,30 @@ registerrpc(prognum, versnum, procnum, progname, inproc, outproc)
 #ifdef WIN32
 			nt_rpc_report("couldn't create an rpc server\n");
 #else
-			(void) fprintf(stderr, "couldn't create an rpc server\n");
+			fprintf(stderr, "couldn't create an rpc server\n");
 #endif
-			return (-1);
+			return -1;
 		}
 	}
-	(void) pmap_unset((u_long)prognum, (u_long)versnum);
+	pmap_unset((u_long)prognum, (u_long)versnum);
 	if (!svc_register(transp, (u_long)prognum, (u_long)versnum,
 	    universal, IPPROTO_UDP)) {
 #ifdef WIN32
 	    	nt_rpc_report("couldn't register prog");
 #else
-	    	(void) fprintf(stderr, "couldn't register prog %d vers %d\n",
+	    	fprintf(stderr, "couldn't register prog %d vers %d\n",
 		    prognum, versnum);
 #endif
-		return (-1);
+		return -1;
 	}
 	pl = (struct proglst *)malloc(sizeof(struct proglst));
 	if (pl == NULL) {
 #ifdef WIN32
 		nt_rpc_report("registerrpc: out of memory\n");
 #else
-		(void) fprintf(stderr, "registerrpc: out of memory\n");
+		fprintf(stderr, "registerrpc: out of memory\n");
 #endif
-		return (-1);
+		return -1;
 	}
 	pl->p_progname = progname;
 	pl->p_prognum = prognum;
@@ -132,13 +129,10 @@ registerrpc(prognum, versnum, procnum, progname, inproc, outproc)
 	pl->p_outproc = outproc;
 	pl->p_nxt = proglst;
 	proglst = pl;
-	return (0);
+	return 0;
 }
 
-static void
-universal(rqstp, transp)
-	struct svc_req *rqstp;
-	SVCXPRT *transp;
+static void universal(struct svc_req *rqstp, SVCXPRT *transp)
 {
 	int prog, proc;
 	char *outdata;
@@ -151,7 +145,7 @@ universal(rqstp, transp)
 	if (rqstp->rq_proc == NULLPROC) {
 		if (svc_sendreply(transp, xdr_void, (char *)NULL) == FALSE) {
 #ifdef WIN32
-			nt_rpc_report(stderr, "xxx\n");
+			nt_rpc_report("xxx\n");
 #else
 			(void) fprintf(stderr, "xxx\n");
 #endif
@@ -179,20 +173,20 @@ universal(rqstp, transp)
 				    "trouble replying to prog\n"
 				    /*, pl->p_prognum*/);
 #else
-				(void) fprintf(stderr,
+				fprintf(stderr,
 				    "trouble replying to prog %d\n",
 				    pl->p_prognum);
 #endif
 				exit(1);
 			}
 			/* free the decoded arguments */
-			(void)svc_freeargs(transp, pl->p_inproc, xdrbuf);
+			svc_freeargs(transp, pl->p_inproc, xdrbuf);
 			return;
 		}
 #ifdef WIN32
 	nt_rpc_report("never registered prog %d\n"/*, prog*/);
 #else
-	(void) fprintf(stderr, "never registered prog %d\n", prog);
+	fprintf(stderr, "never registered prog %d\n", prog);
 #endif
 	exit(1);
 }

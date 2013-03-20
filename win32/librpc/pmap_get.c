@@ -76,12 +76,7 @@ static struct timeval tottimeout = { 60, 0 };
  * Calls the pmap service remotely to do the lookup.
  * Returns 0 if no map exists.
  */
-u_short
-pmap_getport(address, program, version, protocol)
-	struct sockaddr_in *address;
-	u_long program;
-	u_long version;
-	u_int protocol;
+u_short pmap_getport(struct sockaddr_in *address,	u_long program,	u_long version,	u_int protocol)
 {
 	u_short port = 0;
 	int socket = -1;
@@ -105,7 +100,7 @@ pmap_getport(address, program, version, protocol)
 		}
 		CLNT_DESTROY(client);
 	}
-	(void)closesocket(socket);
+	closesocket(socket);
 	address->sin_port = 0;
-	return (port);
+	return port;
 }

@@ -104,7 +104,7 @@ struct svcudp_data {
 };
 #define	su_data(xprt)	((struct svcudp_data *)(xprt->xp_p2))
 
-static cache_get(SVCXPRT *xprt, struct rpc_msg *msg, char **replyp, u_long *replylenp);
+static int cache_get(SVCXPRT *xprt, struct rpc_msg *msg, char **replyp, u_long *replylenp);
 static void cache_set(SVCXPRT *xprt, u_long replylen);
 
 
@@ -121,10 +121,7 @@ static void cache_set(SVCXPRT *xprt, u_long replylen);
  * see (svc.h, xprt_register).
  * The routines returns NULL if a problem occurred.
  */
-SVCXPRT *
-svcudp_bufcreate(sock, sendsz, recvsz)
-	register int sock;
-	u_int sendsz, recvsz;
+SVCXPRT *svcudp_bufcreate(register SOCKET sock,	u_int sendsz, u_int recvsz)
 {
 	bool_t madesock = FALSE;
 	register SVCXPRT *xprt;
@@ -147,44 +144,44 @@ svcudp_bufcreate(sock, sendsz, recvsz)
 	addr.sin_family = AF_INET;
 	if (bindresvport(sock, &addr)) {
 		addr.sin_port = 0;
-		(void)bind(sock, (struct sockaddr *)&addr, len);
+		bind(sock, (struct sockaddr *)&addr, len);
 	}
 	if (getsockname(sock, (struct sockaddr *)&addr, &len) != 0) {
 		perror("svcudp_create - cannot getsockname");
 		if (madesock)
 #ifdef WIN32
-			(void)closesocket(sock);
+			closesocket(sock);
 #else
-			(void)close(sock);
+			close(sock);
 #endif
-		return ((SVCXPRT *)NULL);
+		return (SVCXPRT *)NULL;
 	}
 	xprt = (SVCXPRT *)mem_alloc(sizeof(SVCXPRT));
 	if (xprt == NULL) {
 #ifdef WIN32
 		nt_rpc_report("svcudp_create: out of memory\n");
 #else
-		(void)fprintf(stderr, "svcudp_create: out of memory\n");
+		fprintf(stderr, "svcudp_create: out of memory\n");
 #endif
-		return (NULL);
+		return NULL;
 	}
 	su = (struct svcudp_data *)mem_alloc(sizeof(*su));
 	if (su == NULL) {
 #ifdef WIN32
 		nt_rpc_report("svcudp_create: out of memory\n");
 #else
-		(void)fprintf(stderr, "svcudp_create: out of memory\n");
+		fprintf(stderr, "svcudp_create: out of memory\n");
 #endif
-		return (NULL);
+		return NULL;
 	}
 	su->su_iosz = ((MAX(sendsz, recvsz) + 3) / 4) * 4;
 	if ((rpc_buffer(xprt) = mem_alloc(su->su_iosz)) == NULL) {
 #ifdef WIN32
 		nt_rpc_report("svcudp_create: out of memory\n");
 #else
-		(void)fprintf(stderr, "svcudp_create: out of memory\n");
+		fprintf(stderr, "svcudp_create: out of memory\n");
 #endif
-		return (NULL);
+		return NULL;
 	}
 	xdrmem_create(
 	    &(su->su_xdrs), rpc_buffer(xprt), su->su_iosz, XDR_DECODE);
@@ -195,29 +192,20 @@ svcudp_bufcreate(sock, sendsz, recvsz)
 	xprt->xp_port = ntohs(addr.sin_port);
 	xprt->xp_sock = sock;
 	xprt_register(xprt);
-	return (xprt);
+	return xprt;
 }
 
-SVCXPRT *
-svcudp_create(sock)
-	int sock;
+SVCXPRT *svcudp_create(SOCKET sock)
 {
-
-	return(svcudp_bufcreate(sock, UDPMSGSIZE, UDPMSGSIZE));
+	return svcudp_bufcreate(sock, UDPMSGSIZE, UDPMSGSIZE);
 }
 
-static enum xprt_stat
-svcudp_stat(xprt)
-	SVCXPRT *xprt;
+static enum xprt_stat svcudp_stat(SVCXPRT *xprt)
 {
-
-	return (XPRT_IDLE);
+	return XPRT_IDLE;
 }
 
-static bool_t
-svcudp_recv(xprt, msg)
-	register SVCXPRT *xprt;
-	struct rpc_msg *msg;
+static bool_t svcudp_recv(register SVCXPRT *xprt,	struct rpc_msg *msg)
 {
 	register struct svcudp_data *su = su_data(xprt);
 	register XDR *xdrs = &(su->su_xdrs);
@@ -236,30 +224,27 @@ svcudp_recv(xprt, msg)
 #endif
 		goto again;
 	if (rlen < 4*sizeof(u_long))
-		return (FALSE);
+		return FALSE;
 	xdrs->x_op = XDR_DECODE;
 	XDR_SETPOS(xdrs, 0);
 	if (! xdr_callmsg(xdrs, msg))
-		return (FALSE);
+		return FALSE;
 	su->su_xid = msg->rm_xid;
 	if (su->su_cache != NULL) {
 		if (cache_get(xprt, msg, &reply, &replylen)) {
 #ifdef WIN32
 			  sendto(xprt->xp_sock, reply, (int) replylen, 0,
 #else
-			(void) sendto(xprt->xp_sock, reply, (int) replylen, 0,
+			sendto(xprt->xp_sock, reply, (int) replylen, 0,
 #endif
 			  (struct sockaddr *) &xprt->xp_raddr, xprt->xp_addrlen);
-			return (TRUE);
+			return TRUE;
 		}
 	}
-	return (TRUE);
+	return TRUE;
 }
 
-static bool_t
-svcudp_reply(xprt, msg)
-	register SVCXPRT *xprt;
-	struct rpc_msg *msg;
+static bool_t svcudp_reply(register SVCXPRT *xprt, struct rpc_msg *msg)
 {
 	register struct svcudp_data *su = su_data(xprt);
 	register XDR *xdrs = &(su->su_xdrs);
@@ -280,24 +265,15 @@ svcudp_reply(xprt, msg)
 			}
 		}
 	}
-	return (stat);
+	return stat;
 }
 
-static bool_t
-svcudp_getargs(xprt, xdr_args, args_ptr)
-	SVCXPRT *xprt;
-	xdrproc_t xdr_args;
-	caddr_t args_ptr;
+static bool_t svcudp_getargs(SVCXPRT *xprt,	xdrproc_t xdr_args,	caddr_t args_ptr)
 {
-
 	return ((*xdr_args)(&(su_data(xprt)->su_xdrs), args_ptr));
 }
 
-static bool_t
-svcudp_freeargs(xprt, xdr_args, args_ptr)
-	SVCXPRT *xprt;
-	xdrproc_t xdr_args;
-	caddr_t args_ptr;
+static bool_t svcudp_freeargs(SVCXPRT *xprt, xdrproc_t xdr_args, caddr_t args_ptr)
 {
 	register XDR *xdrs = &(su_data(xprt)->su_xdrs);
 
@@ -305,17 +281,15 @@ svcudp_freeargs(xprt, xdr_args, args_ptr)
 	return ((*xdr_args)(xdrs, args_ptr));
 }
 
-static void
-svcudp_destroy(xprt)
-	register SVCXPRT *xprt;
+static void svcudp_destroy(register SVCXPRT *xprt)
 {
 	register struct svcudp_data *su = su_data(xprt);
 
 	xprt_unregister(xprt);
 #ifdef WIN32
-	(void)closesocket(xprt->xp_sock);
+	closesocket(xprt->xp_sock);
 #else
-	(void)close(xprt->xp_sock);
+	close(xprt->xp_sock);
 #endif
 	XDR_DESTROY(&(su->su_xdrs));
 	mem_free(rpc_buffer(xprt), su->su_iosz);
@@ -400,47 +374,42 @@ struct udp_cache {
  * Enable use of the cache.
  * Note: there is no disable.
  */
-svcudp_enablecache(transp, size)
-	SVCXPRT *transp;
-	u_long size;
+int svcudp_enablecache(SVCXPRT *transp,	u_long size)
 {
 	struct svcudp_data *su = su_data(transp);
 	struct udp_cache *uc;
 
 	if (su->su_cache != NULL) {
 		CACHE_PERROR("enablecache: cache already enabled");
-		return(0);
+		return 0;
 	}
 	uc = ALLOC(struct udp_cache, 1);
 	if (uc == NULL) {
 		CACHE_PERROR("enablecache: could not allocate cache");
-		return(0);
+		return 0;
 	}
 	uc->uc_size = size;
 	uc->uc_nextvictim = 0;
 	uc->uc_entries = ALLOC(cache_ptr, size * SPARSENESS);
 	if (uc->uc_entries == NULL) {
 		CACHE_PERROR("enablecache: could not allocate cache data");
-		return(0);
+		return 0;
 	}
 	BZERO(uc->uc_entries, cache_ptr, size * SPARSENESS);
 	uc->uc_fifo = ALLOC(cache_ptr, size);
 	if (uc->uc_fifo == NULL) {
 		CACHE_PERROR("enablecache: could not allocate cache fifo");
-		return(0);
+		return 0;
 	}
 	BZERO(uc->uc_fifo, cache_ptr, size);
 	su->su_cache = (char *) uc;
-	return(1);
+	return 1;
 }
 
 /*
  * Set an entry in the cache
  */
-static void
-cache_set(xprt, replylen)
-	SVCXPRT *xprt;
-	u_long replylen;
+static void cache_set(SVCXPRT *xprt, u_long replylen)
 {
 	register cache_ptr victim;
 	register cache_ptr *vicp;
@@ -502,12 +471,7 @@ cache_set(xprt, replylen)
  * Try to get an entry from the cache
  * return 1 if found, 0 if not found
  */
-static
-cache_get(xprt, msg, replyp, replylenp)
-	SVCXPRT *xprt;
-	struct rpc_msg *msg;
-	char **replyp;
-	u_long *replylenp;
+static int cache_get(SVCXPRT *xprt,	struct rpc_msg *msg, char **replyp, u_long *replylenp)
 {
 	u_int loc;
 	register cache_ptr ent;
@@ -525,7 +489,7 @@ cache_get(xprt, msg, replyp, replylenp)
 		  EQADDR(ent->cache_addr, uc->uc_addr)) {
 			*replyp = ent->cache_reply;
 			*replylenp = ent->cache_replylen;
-			return(1);
+			return 1;
 		}
 	}
 	/*
@@ -536,6 +500,6 @@ cache_get(xprt, msg, replyp, replylenp)
 	uc->uc_vers = msg->rm_call.cb_vers;
 	uc->uc_prog = msg->rm_call.cb_prog;
 	uc->uc_addr = xprt->xp_raddr;
-	return(0);
+	return 0;
 }
 

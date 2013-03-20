@@ -81,12 +81,11 @@ static char sccsid[] = "@(#)xdr_reference.c 1.11 87/08/11 SMI";
  * size is the sizeof the referneced structure.
  * proc is the routine to handle the referenced structure.
  */
-bool_t
-xdr_reference(xdrs, pp, size, proc)
-	register XDR *xdrs;
-	caddr_t *pp;		/* the pointer to work on */
-	u_int size;		/* size of the object pointed to */
-	xdrproc_t proc;		/* xdr routine to handle the object */
+bool_t xdr_reference(register XDR *xdrs,
+	caddr_t *pp,		/* the pointer to work on */
+	u_int size,		/* size of the object pointed to */
+	xdrproc_t proc		/* xdr routine to handle the object */
+  )
 {
 	register caddr_t loc = *pp;
 	register bool_t stat;
@@ -94,18 +93,18 @@ xdr_reference(xdrs, pp, size, proc)
 	if (loc == NULL)
 		switch (xdrs->x_op) {
 		case XDR_FREE:
-			return (TRUE);
+			return TRUE;
 
 		case XDR_DECODE:
 			*pp = loc = (caddr_t) mem_alloc(size);
 			if (loc == NULL) {
 #ifdef WIN32
-				(void) nt_rpc_report(
+				nt_rpc_report(
 #else
-				(void) fprintf(stderr,
+				fprintf(stderr,
 #endif
 				    "xdr_reference: out of memory\n");
-				return (FALSE);
+				return FALSE;
 			}
 			bzero(loc, (int)size);
 			break;
@@ -117,7 +116,7 @@ xdr_reference(xdrs, pp, size, proc)
 		mem_free(loc, size);
 		*pp = NULL;
 	}
-	return (stat);
+	return stat;
 }
 
 
@@ -140,23 +139,17 @@ xdr_reference(xdrs, pp, size, proc)
  * > xdr_obj: routine to XDR an object.
  *
  */
-bool_t
-xdr_pointer(xdrs,objpp,obj_size,xdr_obj)
-	register XDR *xdrs;
-	char **objpp;
-	u_int obj_size;
-	xdrproc_t xdr_obj;
+bool_t xdr_pointer(register XDR *xdrs, char **objpp, u_int obj_size, xdrproc_t xdr_obj)
 {
-
 	bool_t more_data;
 
 	more_data = (*objpp != NULL);
 	if (! xdr_bool(xdrs,&more_data)) {
-		return (FALSE);
+		return FALSE;
 	}
 	if (! more_data) {
 		*objpp = NULL;
-		return (TRUE);
+		return TRUE;
 	}
-	return (xdr_reference(xdrs,objpp,obj_size,xdr_obj));
+	return xdr_reference(xdrs,objpp,obj_size,xdr_obj);
 }

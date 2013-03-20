@@ -67,24 +67,15 @@ static char sccsid[] = "@(#)svc_run.c 1.1 87/10/13 Copyr 1984 Sun Micro";
 
 #include "all_oncrpc.h"
 
-void
-svc_run()
+void svc_run()
 {
-#ifdef FD_SETSIZE
 	fd_set readfds;
-#else
-      int readfds;
-#endif /* def FD_SETSIZE */
 #ifndef WIN32
 	extern int errno;
 #endif
 
 	for (;;) {
-#ifdef FD_SETSIZE
 		readfds = svc_fdset;
-#else
-		readfds = svc_fds;
-#endif /* def FD_SETSIZE */
 #ifdef WIN32
 		switch (select(0 /* unused in winsock */, &readfds, NULL, NULL,
 #else

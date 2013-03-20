@@ -106,10 +106,7 @@ static char sccsid[] = "@(#)pmap_prot2.c 1.3 87/08/11 Copyr 1984 Sun Micro";
  * the net, yet is the data that the pointer points to which is interesting;
  * this sounds like a job for xdr_reference!
  */
-bool_t
-xdr_pmaplist(xdrs, rp)
-	register XDR *xdrs;
-	register struct pmaplist **rp;
+bool_t xdr_pmaplist(register XDR *xdrs,	register struct pmaplist **rp)
 {
 	/*
 	 * more_elements is pre-computed in case the direction is

@@ -74,6 +74,6 @@
 #endif
 
 ONCRPCAPI void get_myaddress(struct sockaddr_in *addr);
-int bindresvport(int sd,struct sockaddr_in *sin);
+int bindresvport(SOCKET sd,struct sockaddr_in *sin);
 
 #endif  /*__all_oncrpc_includes__*/

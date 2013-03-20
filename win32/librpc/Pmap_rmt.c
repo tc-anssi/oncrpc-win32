@@ -85,14 +85,8 @@ static struct timeval timeout = { 3, 0 };
  * remotely call that routine with the given parameters.  This allows
  * programs to do a lookup and call in one step.
 */
-enum clnt_stat
-pmap_rmtcall(addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_ptr)
-	struct sockaddr_in *addr;
-	u_long prog, vers, proc;
-	xdrproc_t xdrargs, xdrres;
-	caddr_t argsp, resp;
-	struct timeval tout;
-	u_long *port_ptr;
+enum clnt_stat pmap_rmtcall(struct sockaddr_in *addr,	u_long prog, u_long vers, u_long proc, xdrproc_t xdrargs,
+	                          caddr_t argsp, xdrproc_t xdrres, caddr_t resp, struct timeval tout,	u_long *port_ptr)
 {
 	int socket = -1;
 	register CLIENT *client;
@@ -118,12 +112,12 @@ pmap_rmtcall(addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_pt
 		stat = RPC_FAILED;
 	}
 #ifdef WIN32
-	(void)closesocket(socket);
+	closesocket(socket);
 #else
-	(void)close(socket);
+	close(socket);
 #endif
 	addr->sin_port = 0;
-	return (stat);
+	return stat;
 }
 
 
@@ -131,10 +125,7 @@ pmap_rmtcall(addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_pt
  * XDR remote call arguments
  * written for XDR_ENCODE direction only
  */
-bool_t
-xdr_rmtcall_args(xdrs, cap)
-	register XDR *xdrs;
-	register struct rmtcallargs *cap;
+bool_t xdr_rmtcall_args(register XDR *xdrs,	register struct rmtcallargs *cap)
 {
 	u_int lenposition, argposition, position;
 
@@ -143,29 +134,26 @@ xdr_rmtcall_args(xdrs, cap)
 	    xdr_u_long(xdrs, &(cap->proc))) {
 		lenposition = XDR_GETPOS(xdrs);
 		if (! xdr_u_long(xdrs, &(cap->arglen)))
-		    return (FALSE);
+		    return FALSE;
 		argposition = XDR_GETPOS(xdrs);
 		if (! (*(cap->xdr_args))(xdrs, cap->args_ptr))
-		    return (FALSE);
+		    return FALSE;
 		position = XDR_GETPOS(xdrs);
 		cap->arglen = (u_long)position - (u_long)argposition;
 		XDR_SETPOS(xdrs, lenposition);
 		if (! xdr_u_long(xdrs, &(cap->arglen)))
-		    return (FALSE);
+		    return FALSE;
 		XDR_SETPOS(xdrs, position);
-		return (TRUE);
+		return TRUE;
 	}
-	return (FALSE);
+	return FALSE;
 }
 
 /*
  * XDR remote call results
  * written for XDR_DECODE direction only
  */
-bool_t
-xdr_rmtcallres(xdrs, crp)
-	register XDR *xdrs;
-	register struct rmtcallres *crp;
+bool_t xdr_rmtcallres(register XDR *xdrs,	register struct rmtcallres *crp)
 {
 	caddr_t port_ptr;
 
@@ -175,7 +163,7 @@ xdr_rmtcallres(xdrs, crp)
 		crp->port_ptr = (u_long *)port_ptr;
 		return ((*(crp->xdr_results))(xdrs, crp->results_ptr));
 	}
-	return (FALSE);
+	return FALSE;
 }
 
 
@@ -185,11 +173,7 @@ xdr_rmtcallres(xdrs, crp)
  * routines which only support udp/ip .
  */
 
-static int
-getbroadcastnets(addrs, sock, buf)
-	struct in_addr *addrs;
-	int sock;  /* any valid socket will do */
-	char *buf;  /* why allocxate more when we can use existing... */
+static int getbroadcastnets(struct in_addr *addrs, SOCKET sock, char *buf)
 {
 #ifdef WIN32
 	/* try to do a global broadcast, this is not a clean solution */
@@ -242,30 +226,26 @@ getbroadcastnets(addrs, sock, buf)
 typedef bool_t (*resultproc_t)();
 
 enum clnt_stat
-clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
-	u_long		prog;		/* program number */
-	u_long		vers;		/* version number */
-	u_long		proc;		/* procedure number */
-	xdrproc_t	xargs;		/* xdr routine for args */
-	caddr_t		argsp;		/* pointer to args */
-	xdrproc_t	xresults;	/* xdr routine for results */
-	caddr_t		resultsp;	/* pointer to results */
-	resultproc_t	eachresult;	/* call with each result obtained */
+clnt_broadcast(
+	u_long		prog,		/* program number */
+	u_long		vers,		/* version number */
+	u_long		proc,		/* procedure number */
+	xdrproc_t	xargs,		/* xdr routine for args */
+	caddr_t		argsp,		/* pointer to args */
+	xdrproc_t	xresults,	/* xdr routine for results */
+	caddr_t		resultsp,	/* pointer to results */
+	resultproc_t	eachresult	/* call with each result obtained */
+  )
 {
 	enum clnt_stat stat;
 	AUTH *unix_auth = authunix_create_default();
 	XDR xdr_stream;
 	register XDR *xdrs = &xdr_stream;
 	int outlen, inlen, fromlen, nets;
-	register int sock;
+	register SOCKET sock;
 	int on = 1;
-#ifdef FD_SETSIZE
 	fd_set mask;
 	fd_set readfds;
-#else
-	int readfds;
-	register int mask;
-#endif /* def FD_SETSIZE */
 	register int i;
 	bool_t done = FALSE;
 	register u_long xid;
@@ -298,19 +278,15 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 		goto done_broad;
 	}
 #endif /* def SO_BROADCAST */
-#ifdef FD_SETSIZE
 	FD_ZERO(&mask);
 	FD_SET(sock, &mask);
-#else
-	mask = (1 << sock);
-#endif /* def FD_SETSIZE */
 	nets = getbroadcastnets(addrs, sock, inbuf);
 	bzero((char *)&baddr, sizeof (baddr));
 	baddr.sin_family = AF_INET;
 	baddr.sin_port = htons(PMAPPORT);
 	baddr.sin_addr.s_addr = htonl(INADDR_ANY);
 /*	baddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY); */
-	(void)gettimeofday(&t, (struct timezone *)0);
+	gettimeofday(&t, (struct timezone *)0);
 	msg.rm_xid = xid = getpid() ^ t.tv_sec ^ t.tv_usec;
 	t.tv_usec = 0;
 	msg.rm_direction = CALL;
@@ -426,8 +402,8 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 		}
 		xdrs->x_op = XDR_FREE;
 		msg.acpted_rply.ar_results.proc = xdr_void;
-		(void)xdr_replymsg(xdrs, &msg);
-		(void)(*xresults)(xdrs, resultsp);
+		xdr_replymsg(xdrs, &msg);
+		(*xresults)(xdrs, resultsp);
 		xdr_destroy(xdrs);
 		if (done) {
 			stat = RPC_SUCCESS;
@@ -438,11 +414,11 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	}
 done_broad:
 #ifdef WIN32
-	(void)closesocket(sock);
+	closesocket(sock);
 #else
-	(void)close(sock);
+	close(sock);
 #endif
 	AUTH_DESTROY(unix_auth);
-	return (stat);
+	return stat;
 }
 

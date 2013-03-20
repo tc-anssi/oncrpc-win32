@@ -80,9 +80,7 @@ extern int errno;
  * Get a copy of the current port maps.
  * Calls the pmap service remotely to do get the maps.
  */
-struct pmaplist *
-pmap_getmaps(address)
-	 struct sockaddr_in *address;
+struct pmaplist *pmap_getmaps(struct sockaddr_in *address)
 {
 	struct pmaplist *head = (struct pmaplist *)NULL;
 	int socket = -1;
@@ -102,10 +100,10 @@ pmap_getmaps(address)
 		CLNT_DESTROY(client);
 	}
 #ifdef WIN32
-	(void)closesocket(socket);
+	closesocket(socket);
 #else
-	(void)close(socket);
+	close(socket);
 #endif
 	address->sin_port = 0;
-	return (head);
+	return head;
 }

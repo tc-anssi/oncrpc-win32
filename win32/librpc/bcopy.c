@@ -40,10 +40,7 @@
  *  bcopy(char *s1, char *s2, int len) --
  *      Copies len bytes from s1 to s2
  */
-void
-bcopy(s1, s2, len)
-	char *s1, *s2;
-	int len;
+void bcopy(char *s1, char *s2, int len)
 {
 	for(; len > 0; len--)
 		*s2++ = *s1++;
@@ -53,10 +50,7 @@ bcopy(s1, s2, len)
  *  bzero(char *s, int len) --
  *      Places len zero byes in s
  */
-void
-bzero(s, len)
-	char *s;
-	int len;
+void bzero(char *s,	int len)
 {
 	for(; len > 0; len--)
 		*s++ = (char) 0;
@@ -68,10 +62,7 @@ bzero(s, len)
  *  Both strings are assumed to be length bytes long.  bcmp() of 
  *  length zero bytes always returns zero.                       
 */
-int
-bcmp(s1, s2, len)
-	char *s1, *s2;
-	int len;
+int bcmp(char *s1, char *s2, int len)
 {
 	for(; len > 0; len--, s1++, s2++)
 		if (*s1 != *s2)

@@ -67,4 +67,9 @@
 /*
  * Server side authenticator
  */
+#ifndef __SVC_AUTH_HEADER__
+#define __SVC_AUTH_HEADER__
+
 extern enum auth_stat _authenticate();
+
+#endif //__SVC_AUTH_HEADER__

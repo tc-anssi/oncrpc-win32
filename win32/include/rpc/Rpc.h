@@ -78,21 +78,22 @@
 #define WSAerrno (WSAGetLastError())
 #define gettimeofday(tv,tz) ((tv)->tv_sec = time(0), (tv)->tv_usec = 0)
 
-ONCRPCAPI int rpc_nt_init(void);
-ONCRPCAPI int rpc_nt_exit(void);
-ONCRPCAPI void nt_rpc_report();
-ONCRPCAPI int xdr_opaque_auth();
-
-#else  /* not WIN32 */ 
-#include <rpc/types.h>		/* some typedefs */
-#include <netinet/in.h>
-#endif
-
 /* external data representation interfaces */
 #include <rpc/xdr.h>		/* generic (de)serializer */
 
 /* Client side only authentication */
 #include <rpc/auth.h>		/* generic authenticator (client side) */
+
+ONCRPCAPI int rpc_nt_init(void);
+ONCRPCAPI int rpc_nt_exit(void);
+ONCRPCAPI void nt_rpc_report(LPTSTR lpszMsg);
+ONCRPCAPI int xdr_opaque_auth(register XDR *xdrs,
+                              register struct opaque_auth *ap);
+
+#else  /* not WIN32 */ 
+#include <rpc/types.h>		/* some typedefs */
+#include <netinet/in.h>
+#endif
 
 /* Client side (mostly) remote procedure call */
 #include <rpc/clnt.h>		/* generic rpc stuff */

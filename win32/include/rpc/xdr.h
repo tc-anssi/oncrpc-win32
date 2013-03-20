@@ -66,6 +66,7 @@
 #ifndef __XDR_HEADER__
 #define __XDR_HEADER__
 #include <rpc/types.h>
+#include <stdio.h>
 
 /*
  * XDR provides a conventional way for converting between C data
@@ -251,35 +252,35 @@ struct xdr_discrim {
  * These are the "generic" xdr routines.
  */
 ONCRPCAPI bool_t	xdr_void();
-ONCRPCAPI bool_t	xdr_int();
-ONCRPCAPI bool_t	xdr_u_int();
-ONCRPCAPI bool_t	xdr_long();
-ONCRPCAPI bool_t	xdr_u_long();
-ONCRPCAPI bool_t	xdr_hyper();
-ONCRPCAPI bool_t	xdr_u_hyper();
-ONCRPCAPI bool_t	xdr_int32_t();
-ONCRPCAPI bool_t	xdr_uint32_t();
-ONCRPCAPI bool_t	xdr_int64_t();
-ONCRPCAPI bool_t	xdr_uint64_t();
-ONCRPCAPI bool_t	xdr_short();
-ONCRPCAPI bool_t	xdr_u_short();
-ONCRPCAPI bool_t	xdr_bool();
-ONCRPCAPI bool_t	xdr_enum();
-ONCRPCAPI bool_t	xdr_array();
-ONCRPCAPI bool_t	xdr_bytes();
-ONCRPCAPI bool_t	xdr_opaque();
-ONCRPCAPI bool_t	xdr_string();
-ONCRPCAPI bool_t	xdr_union();
-ONCRPCAPI bool_t	xdr_char();
-ONCRPCAPI bool_t	xdr_u_char();
-ONCRPCAPI bool_t	xdr_vector();
-ONCRPCAPI bool_t	xdr_float();
-ONCRPCAPI bool_t	xdr_double();
-ONCRPCAPI bool_t	xdr_reference();
-ONCRPCAPI bool_t	xdr_pointer();
-ONCRPCAPI bool_t	xdr_wrapstring();
-ONCRPCAPI void      xdr_free();
-ONCRPCAPI bool_t    xdr_strarray();
+ONCRPCAPI bool_t	xdr_int(XDR *xdrs, int *ip);
+ONCRPCAPI bool_t	xdr_u_int(XDR *xdrs, u_int *up);
+ONCRPCAPI bool_t	xdr_long(register XDR *xdrs, long *lp);
+ONCRPCAPI bool_t	xdr_u_long(register XDR *xdrs, u_long *ulp);
+ONCRPCAPI bool_t	xdr_hyper(register XDR *xdrs, hyper *lp);
+ONCRPCAPI bool_t	xdr_u_hyper(register XDR *xdrs, unsigned hyper *lp);
+ONCRPCAPI bool_t	xdr_int32_t(register XDR *xdrs, long *lp);
+ONCRPCAPI bool_t	xdr_uint32_t(register XDR *xdrs, long *lp);
+ONCRPCAPI bool_t	xdr_int64_t(register XDR *xdrs, hyper *lp);
+ONCRPCAPI bool_t	xdr_uint64_t(register XDR *xdrs, hyper *lp);
+ONCRPCAPI bool_t	xdr_short(register XDR *xdrs, short *sp);
+ONCRPCAPI bool_t	xdr_u_short(register XDR *xdrs, u_short *usp);
+ONCRPCAPI bool_t	xdr_bool(register XDR *xdrs, bool_t *bp);
+ONCRPCAPI bool_t	xdr_enum(XDR *xdrs, enum_t *ep);
+ONCRPCAPI bool_t	xdr_array(register XDR *xdrs, caddr_t *addrp, u_int *sizep, u_int maxsize, u_int elsize, xdrproc_t elproc);
+ONCRPCAPI bool_t	xdr_bytes(register XDR *xdrs, char **cpp, register u_int *sizep, u_int maxsize);
+ONCRPCAPI bool_t	xdr_opaque(register XDR *xdrs, caddr_t cp, register u_int cnt);
+ONCRPCAPI bool_t	xdr_string(register XDR *xdrs, char **cpp, u_int maxsize);
+ONCRPCAPI bool_t	xdr_union(register XDR *xdrs, enum_t *dscmp, char *unp, struct xdr_discrim *choices, xdrproc_t dfault);
+ONCRPCAPI bool_t	xdr_char(XDR *xdrs, char *cp);
+ONCRPCAPI bool_t	xdr_u_char(XDR *xdrs, char *cp);
+ONCRPCAPI bool_t	xdr_vector(register XDR *xdrs, register char *basep, register u_int nelem, register u_int elemsize, register xdrproc_t xdr_elem);
+ONCRPCAPI bool_t	xdr_float(register XDR *xdrs, register float *fp);
+ONCRPCAPI bool_t	xdr_double(register XDR *xdrs, double *dp);
+ONCRPCAPI bool_t	xdr_reference(register XDR *xdrs, caddr_t *pp, u_int size, xdrproc_t proc);
+ONCRPCAPI bool_t	xdr_pointer(register XDR *xdrs, char **objpp, u_int obj_size, xdrproc_t xdr_obj);
+ONCRPCAPI bool_t	xdr_wrapstring(XDR *xdrs, char **cpp);
+ONCRPCAPI void    xdr_free(xdrproc_t proc, char *objp);
+ONCRPCAPI bool_t  xdr_strarray(register XDR *xdrs, register char ***addrp, u_int *sizep, u_int maxsize);
 
 /*
  * Common opaque bytes objects used by many rpc protocols;
@@ -291,17 +292,17 @@ struct netobj {
 	char	*n_bytes;
 };
 typedef struct netobj netobj;
-ONCRPCAPI bool_t   xdr_netobj();
+ONCRPCAPI bool_t   xdr_netobj(XDR *xdrs, struct netobj *np);
 
 /*
  * These are the public routines for the various implementations of
  * xdr streams.
  */
-ONCRPCAPI void   xdrmem_create();		/* XDR using memory buffers */
-ONCRPCAPI void   xdrstdio_create();	/* XDR using stdio library */
-ONCRPCAPI void   xdrrec_create();		/* XDR pseudo records for tcp */
-ONCRPCAPI bool_t xdrrec_endofrecord();	/* make end of xdr record */
-ONCRPCAPI bool_t xdrrec_skiprecord();	/* move to beginning of next record */
-ONCRPCAPI bool_t xdrrec_eof();		/* true if no more input */
+ONCRPCAPI void   xdrmem_create(register XDR *xdrs, caddr_t addr, u_int size, enum xdr_op op);		/* XDR using memory buffers */
+ONCRPCAPI void   xdrstdio_create(register XDR *xdrs, FILE *file, enum xdr_op op);	/* XDR using stdio library */
+ONCRPCAPI void   xdrrec_create(register XDR *xdrs, register u_int sendsize, register u_int recvsize, caddr_t tcp_handle, int (*readit)(), int (*writeit)());		/* XDR pseudo records for tcp */
+ONCRPCAPI bool_t xdrrec_endofrecord(XDR *xdrs, bool_t sendnow);	/* make end of xdr record */
+ONCRPCAPI bool_t xdrrec_skiprecord(XDR *xdrs);	/* move to beginning of next record */
+ONCRPCAPI bool_t xdrrec_eof(XDR *xdrs);		/* true if no more input */
 
 #endif /* __XDR_HEADER__ */

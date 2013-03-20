@@ -96,8 +96,7 @@ static struct xp_ops server_ops = {
 	svcraw_destroy
 };
 
-SVCXPRT *
-svcraw_create()
+SVCXPRT *svcraw_create()
 {
 	register struct svcraw_private *srp = svcraw_private;
 
@@ -114,80 +113,63 @@ svcraw_create()
 	return (&srp->server);
 }
 
-static enum xprt_stat
-svcraw_stat()
+static enum xprt_stat svcraw_stat()
 {
-
-	return (XPRT_IDLE);
+	return XPRT_IDLE;
 }
 
-static bool_t
-svcraw_recv(xprt, msg)
-	SVCXPRT *xprt;
-	struct rpc_msg *msg;
+static bool_t svcraw_recv(SVCXPRT *xprt, struct rpc_msg *msg)
 {
 	register struct svcraw_private *srp = svcraw_private;
 	register XDR *xdrs;
 
 	if (srp == 0)
-		return (0);
+		return 0;
 	xdrs = &srp->xdr_stream;
 	xdrs->x_op = XDR_DECODE;
 	XDR_SETPOS(xdrs, 0);
 	if (! xdr_callmsg(xdrs, msg))
-	       return (FALSE);
-	return (TRUE);
+	       return FALSE;
+	return TRUE;
 }
 
-static bool_t
-svcraw_reply(xprt, msg)
-	SVCXPRT *xprt;
-	struct rpc_msg *msg;
+static bool_t svcraw_reply(SVCXPRT *xprt,	struct rpc_msg *msg)
 {
 	register struct svcraw_private *srp = svcraw_private;
 	register XDR *xdrs;
 
 	if (srp == 0)
-		return (FALSE);
+		return FALSE;
 	xdrs = &srp->xdr_stream;
 	xdrs->x_op = XDR_ENCODE;
 	XDR_SETPOS(xdrs, 0);
 	if (! xdr_replymsg(xdrs, msg))
-	       return (FALSE);
-	(void)XDR_GETPOS(xdrs);  /* called just for overhead */
-	return (TRUE);
+	       return FALSE;
+	XDR_GETPOS(xdrs);  /* called just for overhead */
+	return TRUE;
 }
 
-static bool_t
-svcraw_getargs(xprt, xdr_args, args_ptr)
-	SVCXPRT *xprt;
-	xdrproc_t xdr_args;
-	caddr_t args_ptr;
+static bool_t svcraw_getargs(SVCXPRT *xprt,	xdrproc_t xdr_args,	caddr_t args_ptr)
 {
 	register struct svcraw_private *srp = svcraw_private;
 
 	if (srp == 0)
-		return (FALSE);
+		return FALSE;
 	return ((*xdr_args)(&srp->xdr_stream, args_ptr));
 }
 
-static bool_t
-svcraw_freeargs(xprt, xdr_args, args_ptr)
-	SVCXPRT *xprt;
-	xdrproc_t xdr_args;
-	caddr_t args_ptr;
+static bool_t svcraw_freeargs(SVCXPRT *xprt, xdrproc_t xdr_args, caddr_t args_ptr)
 { 
 	register struct svcraw_private *srp = svcraw_private;
 	register XDR *xdrs;
 
 	if (srp == 0)
-		return (FALSE);
+		return FALSE;
 	xdrs = &srp->xdr_stream;
 	xdrs->x_op = XDR_FREE;
 	return ((*xdr_args)(xdrs, args_ptr));
 } 
 
-static void
-svcraw_destroy()
+static void svcraw_destroy()
 {
 }

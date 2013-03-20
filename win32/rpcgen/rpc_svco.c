@@ -74,6 +74,8 @@ static char sccsid[] = "@(#)rpc_svcout.c 1.6 87/06/24 (C) 1987 SMI";
 #endif
 #include "rpc_util.h"
 
+#include "rpc_svco.h"
+
 static char RQSTP[] = "rqstp";
 static char TRANSP[] = "transp";
 static char ARG[] = "argument";
@@ -125,8 +127,9 @@ write_most()
  * write a registration for the given transport 
  */
 void
-write_register(transp)
-	char *transp;
+write_register(
+	char *transp
+  )
 {
 	list *l;
 	definition *def;
@@ -187,8 +190,9 @@ write_rest()
 }
 
 void
-write_programs(storage)
-	char *storage;
+write_programs(
+	char *storage
+  )
 {
 	list *l;
 	definition *def;
@@ -202,10 +206,11 @@ write_programs(storage)
 }
 
 
-static
-write_program(def, storage)
-	definition *def;
-	char *storage;
+static void
+write_program(
+	definition *def,
+	char *storage
+  )
 {
 	version_list *vp;
 	proc_list *proc;
@@ -404,28 +409,31 @@ struct call_params *params;\n\
 	}
 }
 
-static
-printerr(err, transp)
-	char *err;
-	char *transp;
+static void
+printerr(
+	char *err,
+	char *transp
+  )
 {
 	f_print(fout, "\t\tsvcerr_%s(%s);\n", err, transp);
 }
 
-static
-printif(proc, transp, prefix, arg)
-	char *proc;
-	char *transp;
-	char *prefix;
-	char *arg;
+static void
+printif(
+	char *proc,
+	char *transp,
+	char *prefix,
+	char *arg
+  )
 {
 	f_print(fout, "\tif (!svc_%s(%s, xdr_%s, %s%s)) {\n",
 		proc, transp, arg, prefix, arg);
 }
 
-
-nullproc(proc)
-	proc_list *proc;
+int
+nullproc(
+	proc_list *proc
+  )
 {
 	for (; proc != NULL; proc = proc->next) {
 		if (streq(proc->proc_num, "0")) {

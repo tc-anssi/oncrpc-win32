@@ -93,17 +93,6 @@ enum auth_stat {
 	AUTH_FAILED=7			/* some unknown reason */
 };
 
-#if (mc68000 || sparc || vax || i386)
-typedef u_long u_int32;	/* 32-bit unsigned integers */
-
-union des_block {
-	struct {
-		u_int32 high;
-		u_int32 low;
-	} key;
-	char c[8];
-};
-#else
 union des_block {
         struct {
                 u_long high;
@@ -111,7 +100,7 @@ union des_block {
         } key;
         char c[8];
 };
-#endif
+
 typedef union des_block des_block;
 ONCRPCAPI bool_t xdr_des_block();
 
@@ -204,7 +193,8 @@ extern ONCRPCAPI struct opaque_auth _null_auth;
  *	int len;
  *	int *aup_gids;
  */
-ONCRPCAPI AUTH *authunix_create();
+ONCRPCAPI AUTH *authunix_create(char *machname, int uid, int gid,
+                                register int len, int *aup_gids);
 ONCRPCAPI AUTH *authunix_create_default();	/* takes no parameters */
 ONCRPCAPI AUTH *authnone_create();		/* takes no parameters */
 ONCRPCAPI AUTH *authdes_create();

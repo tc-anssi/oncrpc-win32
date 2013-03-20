@@ -23,6 +23,8 @@
  * WARRANTY, NOR WILL I BE LIABLE FOR ANY DAMAGES INCURRED FROM THE 
  * USE OF. USE ENTIRELY AT YOUR OWN RISK!!!
  *********************************************************************/
+#ifndef __BCOPY_HEADER__
+#define __BCOPY_HEADER__
 #include <rpc/types.h>
 
 ONCRPCAPI void bcopy(char *,char*,int);
@@ -31,3 +33,4 @@ ONCRPCAPI void bcopy(char *,char*,int);
 //void bcopy_ff(char *,char *,int);
 ONCRPCAPI void bzero(char*,int);
 ONCRPCAPI int bcmp(char *s1, char *s2, int len);
+#endif //__BCOPY_HEADER__

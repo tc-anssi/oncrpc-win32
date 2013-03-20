@@ -97,7 +97,7 @@ enum xprt_stat {
  * Server side transport handle
  */
 typedef struct {
-	int		xp_sock;
+	SOCKET		xp_sock;
 	u_short		xp_port;	 /* associated port number */
 	struct xp_ops {
 	    bool_t	(*xp_recv)();	 /* receive incomming requests */
@@ -181,7 +181,7 @@ struct svc_req {
  *	void (*dispatch)();
  *	int protocol;  /* like TCP or UDP, zero means do not register 
  */
-ONCRPCAPI bool_t	svc_register();
+ONCRPCAPI bool_t	svc_register(	SVCXPRT *xprt, u_long prog, u_long vers, void (*dispatch)(), int protocol);
 
 /*
  * Service un-registration
@@ -190,7 +190,7 @@ ONCRPCAPI bool_t	svc_register();
  *	u_long prog;
  *	u_long vers;
  */
-ONCRPCAPI void	svc_unregister();
+ONCRPCAPI void	svc_unregister(	u_long prog, u_long vers);
 
 /*
  * Transport registration.
@@ -198,7 +198,7 @@ ONCRPCAPI void	svc_unregister();
  * xprt_register(xprt)
  *	SVCXPRT *xprt;
  */
-ONCRPCAPI void	xprt_register();
+ONCRPCAPI void	xprt_register(SVCXPRT *xprt);
 
 /*
  * Transport un-register
@@ -206,7 +206,7 @@ ONCRPCAPI void	xprt_register();
  * xprt_unregister(xprt)
  *	SVCXPRT *xprt;
  */
-ONCRPCAPI void	xprt_unregister();
+ONCRPCAPI void	xprt_unregister(SVCXPRT *xprt);
 
 
 
@@ -237,14 +237,14 @@ ONCRPCAPI void	xprt_unregister();
  * deadlock the caller and server processes!
  */
 
-ONCRPCAPI bool_t	svc_sendreply();
-ONCRPCAPI void	svcerr_decode();
-ONCRPCAPI void	svcerr_weakauth();
-ONCRPCAPI void	svcerr_noproc();
-ONCRPCAPI void	svcerr_progvers();
-ONCRPCAPI void	svcerr_auth();
-ONCRPCAPI void	svcerr_noprog();
-ONCRPCAPI void	svcerr_systemerr();
+ONCRPCAPI bool_t	svc_sendreply(register SVCXPRT *xprt, xdrproc_t xdr_results, caddr_t xdr_location);
+ONCRPCAPI void	svcerr_decode(register SVCXPRT *xprt);
+ONCRPCAPI void	svcerr_weakauth(SVCXPRT *xprt);
+ONCRPCAPI void	svcerr_noproc(register SVCXPRT *xprt);
+ONCRPCAPI void	svcerr_progvers(register SVCXPRT *xprt, u_long low_vers, u_long high_vers);
+ONCRPCAPI void	svcerr_auth(SVCXPRT *xprt, enum auth_stat why);
+ONCRPCAPI void	svcerr_noprog(register SVCXPRT *xprt);
+ONCRPCAPI void	svcerr_systemerr(register SVCXPRT *xprt);
     
 /*
  * Lowest level dispatching -OR- who owns this process anyway.
@@ -286,8 +286,8 @@ extern int svc_fds;
  */
 extern void rpctest_service();
 
-ONCRPCAPI void	svc_getreq();
-ONCRPCAPI void	svc_getreqset();	/* takes fdset instead of int */
+ONCRPCAPI void	svc_getreq(int rdfds);
+ONCRPCAPI void	svc_getreqset(fd_set *readfds);	/* takes fdset instead of int */
 ONCRPCAPI void	svc_run(); 	 /* never returns */
 
 /*
@@ -307,14 +307,12 @@ ONCRPCAPI SVCXPRT *svcraw_create();
 /*
  * Udp based rpc.
  */
-ONCRPCAPI SVCXPRT *svcudp_create();
-ONCRPCAPI SVCXPRT *svcudp_bufcreate();
+ONCRPCAPI SVCXPRT *svcudp_create(SOCKET sock);
+ONCRPCAPI SVCXPRT *svcudp_bufcreate(register SOCKET sock, u_int sendsz, u_int recvsz);
 
 /*
  * Tcp based rpc.
  */
-ONCRPCAPI SVCXPRT *svctcp_create();
-
-
+ONCRPCAPI SVCXPRT *svctcp_create(register SOCKET sock, u_int sendsize, u_int recvsize);
 
 #endif /* __SVC_HEADER__ */

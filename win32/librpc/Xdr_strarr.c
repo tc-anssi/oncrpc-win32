@@ -30,12 +30,11 @@
  * addrp is a pointer to the string pointer array, *sizep is the number of 
  * string elements. If *addrp is NULL (*sizep) char pointers are allocated.
  */
-bool_t
-xdr_strarray(xdrs, addrp, sizep, maxsize)
-	register XDR *xdrs;
-	register char ***addrp;	/* array pointer */
-	u_int *sizep;		    /* number of elements */
-	u_int maxsize;		    /* max numberof elements */
+bool_t xdr_strarray(register XDR *xdrs,
+	register char ***addrp,	/* array pointer */
+	u_int *sizep,		    /* number of elements */
+	u_int maxsize		    /* max numberof elements */
+  )
 {
 	register u_int i;
 	register char **target = *addrp;
@@ -44,11 +43,11 @@ xdr_strarray(xdrs, addrp, sizep, maxsize)
 
 	/* like strings, arrays are really counted arrays */
 	if (! xdr_u_int(xdrs, sizep)) {
-		return (FALSE);
+		return FALSE;
 	}
 	c = *sizep;
 	if ((c > maxsize) && (xdrs->x_op != XDR_FREE)) {
-		return (FALSE);
+		return FALSE;
 	}
 
 	/*
@@ -59,22 +58,22 @@ xdr_strarray(xdrs, addrp, sizep, maxsize)
 		switch (xdrs->x_op) {
 		case XDR_DECODE:
 			if (c == 0)
-				return (TRUE);
+				return TRUE;
 			/* allocate and zero */
 			*addrp = target = (char**) calloc( c, sizeof(char*));
 			if (target == NULL) {
 #ifdef WIN32
 				nt_rpc_report(
 #else
-				(void) fprintf(stderr, 
+				fprintf(stderr, 
 #endif
 					"xdr_strarray: out of memory\n");
-				return (FALSE);
+				return FALSE;
 			}
 			break;
 
 		case XDR_FREE:
-			return (TRUE);
+			return TRUE;
 	}
 
 	/*
@@ -92,6 +91,6 @@ xdr_strarray(xdrs, addrp, sizep, maxsize)
 		mem_free(*addrp, c* sizeof(char*));
 		*addrp = NULL;
 	}
-	return (stat);
+	return stat;
 }
 

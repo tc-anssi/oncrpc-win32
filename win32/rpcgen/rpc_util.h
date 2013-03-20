@@ -98,28 +98,84 @@ extern list *defined;
 /*
  * rpc_util routines 
  */
-void storeval();
+void storeval(
+  list **lstp,
+  char *val
+  );
 
 #define STOREVAL(list,item)	\
 	storeval(list,(char *)item)
 
-char *findval();
+char *findval(
+  list *lst,
+  char *val,
+  int (*cmp) ()
+  );
 
 #define FINDVAL(list,item,finder) \
 	findval(list, (char *) item, finder)
 
-char *fixtype();
-char *stringfix();
-void pvname();
-void ptype();
-int isvectordef();
-int streq();
-void error();
-void expected1();
-void expected2();
-void expected3();
-void tabify();
-void record_open();
+typedef struct definition definition;
+
+static int findit(
+  definition *def,
+  char *type
+  );
+
+static char * fixit(
+  char *type,
+  char *orig
+  );
+
+char *fixtype(
+  char *type
+  );
+
+char *stringfix(
+  char *type
+  );
+
+void ptype(
+  char *prefix,
+  char *type,
+  int follow
+  );
+
+static int typedefed(
+  definition *def,
+  char *type
+  );
+
+typedef enum relation relation;
+int isvectordef(
+  char *type,
+  relation rel
+  );
+
+static char *locase(
+  char *str
+  );
+
+void pvname(
+  char *pname,
+  char *vnum
+  );
+
+void crash();
+static void printbuf();
+static void printwhere();
+void error(char *msg);
+int streq(char *a, char *b);
+
+typedef enum tok_kind tok_kind;
+
+void expected1(tok_kind exp1);
+void expected2(tok_kind exp1, tok_kind exp2);
+void expected3(tok_kind exp1, tok_kind exp2, tok_kind exp3);
+void tabify(FILE *f, int tab);
+void record_open(char *file);
+static char *toktostr(tok_kind kind);
+void reinitialize();
 
 /*
  * rpc_cout routines 

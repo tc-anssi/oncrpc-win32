@@ -270,8 +270,7 @@ ONCRPCAPI CLIENT *clntraw_create();
 /*
  * Generic client creation routine. Supported protocols are "udp" and "tcp"
  */
-ONCRPCAPI CLIENT *
-clnt_create(/*host, prog, vers, prot*/); /*
+ONCRPCAPI CLIENT *clnt_create(/*host, prog, vers, prot*/); /*
 	char *host; 	-- hostname
 	u_long prog;	-- program number
 	u_long vers;	-- version number

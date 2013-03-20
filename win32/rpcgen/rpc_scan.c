@@ -85,9 +85,10 @@ static token lasttok;	/* last token, if pushed */
  * scan expecting 1 given token 
  */
 void
-scan(expect, tokp)
-	tok_kind expect;
-	token *tokp;
+scan(
+	tok_kind expect,
+	token *tokp
+  )
 {
 	get_token(tokp);
 	if (tokp->kind != expect) {
@@ -99,10 +100,11 @@ scan(expect, tokp)
  * scan expecting 2 given tokens 
  */
 void
-scan2(expect1, expect2, tokp)
-	tok_kind expect1;
-	tok_kind expect2;
-	token *tokp;
+scan2(
+	tok_kind expect1,
+	tok_kind expect2,
+	token *tokp
+  )
 {
 	get_token(tokp);
 	if (tokp->kind != expect1 && tokp->kind != expect2) {
@@ -114,11 +116,12 @@ scan2(expect1, expect2, tokp)
  * scan expecting 3 given token 
  */
 void
-scan3(expect1, expect2, expect3, tokp)
-	tok_kind expect1;
-	tok_kind expect2;
-	tok_kind expect3;
-	token *tokp;
+scan3(
+	tok_kind expect1,
+	tok_kind expect2,
+	tok_kind expect3,
+	token *tokp
+  )
 {
 	get_token(tokp);
 	if (tokp->kind != expect1 && tokp->kind != expect2
@@ -132,8 +135,9 @@ scan3(expect1, expect2, expect3, tokp)
  * scan expecting a constant, possibly symbolic 
  */
 void
-scan_num(tokp)
-	token *tokp;
+scan_num(
+	token *tokp
+  )
 {
 	get_token(tokp);
 	switch (tokp->kind) {
@@ -149,8 +153,9 @@ scan_num(tokp)
  * Peek at the next token 
  */
 void
-peek(tokp)
-	token *tokp;
+peek(
+	token *tokp
+  )
 {
 	get_token(tokp);
 	unget_token(tokp);
@@ -161,9 +166,10 @@ peek(tokp)
  * Peek at the next token and scan it if it matches what you expect 
  */
 int
-peekscan(expect, tokp)
-	tok_kind expect;
-	token *tokp;
+peekscan(
+	tok_kind expect,
+	token *tokp
+  )
 {
 	peek(tokp);
 	if (tokp->kind == expect) {
@@ -179,8 +185,9 @@ peekscan(expect, tokp)
  * Get the next token, printing out any directive that are encountered. 
  */
 void
-get_token(tokp)
-	token *tokp;
+get_token(
+	token *tokp
+  )
 {
 	int commenting;
 
@@ -328,19 +335,21 @@ get_token(tokp)
 
 
 
-static
-unget_token(tokp)
-	token *tokp;
+static void
+unget_token(
+	token *tokp
+  )
 {
 	lasttok = *tokp;
 	pushed = 1;
 }
 
 
-static
-findstrconst(str, val)
-	char **str;
-	char **val;
+static void
+findstrconst(
+	char **str,
+	char **val
+  )
 {
 	char *p;
 	int size;
@@ -353,17 +362,18 @@ findstrconst(str, val)
 		error("unterminated string constant");
 	}
 	p++;
-	size = p - *str;
+	size = (int)(p - *str);
 	*val = alloc(size + 1);
 	(void) strncpy(*val, *str, size);
 	(*val)[size] = 0;
 	*str = p;
 }
 
-static
-findconst(str, val)
-	char **str;
-	char **val;
+static void
+findconst(
+	char **str,
+	char **val
+  )
 {
 	char *p;
 	int size;
@@ -379,7 +389,7 @@ findconst(str, val)
 			p++;
 		} while (isdigit(*p));
 	}
-	size = p - *str;
+	size = (int)(p - *str);
 	*val = alloc(size + 1);
 	(void) strncpy(*val, *str, size);
 	(*val)[size] = 0;
@@ -415,10 +425,11 @@ static token symbols[] = {
 };
 
 
-static
-findkind(mark, tokp)
-	char **mark;
-	token *tokp;
+static void
+findkind(
+	char **mark,
+	token *tokp
+  )
 {
 
 	int len;
@@ -427,7 +438,7 @@ findkind(mark, tokp)
 
 	str = *mark;
 	for (s = symbols; s->kind != TOK_EOF; s++) {
-		len = strlen(s->str);
+		len = (int)strlen(s->str);
 		if (strncmp(str, s->str, len) == 0) {
 			if (!isalnum(str[len]) && str[len] != '_') {
 				tokp->kind = s->kind;
@@ -445,32 +456,36 @@ findkind(mark, tokp)
 	*mark = str + len;
 }
 
-static
-cppline(line)
-	char *line;
+static int
+cppline(
+	char *line
+  )
 {
 	return (line == curline && *line == '#');
 }
 
-static
-directive(line)
-	char *line;
+static int
+directive(
+	char *line
+  )
 {
 	return (line == curline && *line == '%');
 }
 
-static
-printdirective(line)
-	char *line;
+static void
+printdirective(
+	char *line
+  )
 {
 	f_print(fout, "%s", line + 1);
 }
 
-static
-docppline(line, lineno, fname)
-	char *line;
-	int *lineno;
-	char **fname;
+static void
+docppline(
+	char *line,
+	int *lineno,
+	char **fname
+  )
 {
 	char *file;
 	int num;

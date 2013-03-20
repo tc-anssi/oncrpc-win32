@@ -77,8 +77,7 @@ static	char sccsid[] = "@(#)portmap.c 1.2 85/03/13 Copyr 1984 Sun Micro";
 #include <rpc/pmap_pro.h>
 #include <stdio.h>
 
-int reg_service();
-static callit();
+#include "portmap.h"
 
 #ifdef DEBUG
 #define	syslog(e, s)	fprintf(stderr, (s))
@@ -90,7 +89,7 @@ static int debug = 0;
 main()
 {
 	SVCXPRT *xprt;
-	int sock, pid, t;
+	SOCKET sock;
 	struct sockaddr_in addr;
 	int len = sizeof(struct sockaddr_in);
 
@@ -152,12 +151,14 @@ main()
 	abort();
 }
 
-struct pmaplist *pmaplist;
+
 
 static struct pmaplist *
-find_service(prog, vers, prot)
-	u_long prog;
-	u_long vers;
+find_service(
+	u_long prog,
+	u_long vers,
+  u_long prot
+  )
 {
 	register struct pmaplist *hit = NULL;
 	register struct pmaplist *pml;
@@ -177,9 +178,11 @@ find_service(prog, vers, prot)
 /* 
  * 1 OK, 0 not
  */
-reg_service(rqstp, xprt)
-	struct svc_req *rqstp;
-	SVCXPRT *xprt;
+void
+reg_service(
+	struct svc_req *rqstp,
+	SVCXPRT *xprt
+  )
 {
 	struct pmap reg;
 	struct pmaplist *pml, *prevpml, *fnd;
@@ -333,32 +336,21 @@ reg_service(rqstp, xprt)
  */
 #define ARGSIZE 9000
 
-typedef struct encap_parms {
-	u_long arglen;
-	char *args;
-} encap_parms_t;
-
 static bool_t
-xdr_encap_parms(xdrs, epp)
-	XDR *xdrs;
-	struct encap_parms *epp;
+xdr_encap_parms(
+	XDR *xdrs,
+	struct encap_parms *epp
+  )
 {
 
 	return (xdr_bytes(xdrs, &(epp->args), &(epp->arglen), ARGSIZE));
 }
 
-typedef struct rmtcallargs {
-	u_long	rmt_prog;
-	u_long	rmt_vers;
-	u_long	rmt_port;
-	u_long	rmt_proc;
-	struct encap_parms rmt_args;
-} rmtcallargs_t;
-
 static bool_t
-xdr_rmtcall_args(xdrs, cap)
-	register XDR *xdrs;
-	register struct rmtcallargs *cap;
+xdr_rmtcall_args(
+	register XDR *xdrs,
+	register struct rmtcallargs *cap
+  )
 {
 
 	/* does not get a port number */
@@ -371,9 +363,10 @@ xdr_rmtcall_args(xdrs, cap)
 }
 
 static bool_t
-xdr_rmtcall_result(xdrs, cap)
-	register XDR *xdrs;
-	register struct rmtcallargs *cap;
+xdr_rmtcall_result(
+	register XDR *xdrs,
+	register struct rmtcallargs *cap
+  )
 {
 	if (xdr_u_long(xdrs, &(cap->rmt_port)))
 		return (xdr_encap_parms(xdrs, &(cap->rmt_args)));
@@ -385,9 +378,10 @@ xdr_rmtcall_result(xdrs, cap)
  * The arglen must already be set!!
  */
 static bool_t
-xdr_opaque_parms(xdrs, cap)
-	XDR *xdrs;
-	struct rmtcallargs *cap;
+xdr_opaque_parms(
+	XDR *xdrs,
+	struct rmtcallargs *cap
+  )
 {
 
 	return (xdr_opaque(xdrs, cap->rmt_args.args, cap->rmt_args.arglen));
@@ -398,9 +392,10 @@ xdr_opaque_parms(xdrs, cap)
  * and then calls xdr_opaque_parms.
  */
 static bool_t
-xdr_len_opaque_parms(xdrs, cap)
-	register XDR *xdrs;
-	struct rmtcallargs *cap;
+xdr_len_opaque_parms(
+	register XDR *xdrs,
+	struct rmtcallargs *cap
+  )
 {
 	register u_int beginpos, lowpos, highpos, currpos, pos;
 
@@ -427,17 +422,18 @@ xdr_len_opaque_parms(xdrs, cap)
  * a machine should shut-up instead of complain, less the requestor be
  * overrun with complaints at the expense of not hearing a valid reply ...
  */
-static
-callit(rqstp, xprt)
-	struct svc_req *rqstp;
-	SVCXPRT *xprt;
+static void
+callit(
+	struct svc_req *rqstp,
+	SVCXPRT *xprt
+  )
 {
 	char buf[2000];
 	struct rmtcallargs a;
 	struct pmaplist *pml;
 	u_short port;
 	struct sockaddr_in me;
-	int socket = -1;
+	SOCKET socket = INVALID_SOCKET;
 	CLIENT *client;
 	struct authunix_parms *au = (struct authunix_parms *)rqstp->rq_clntcred;
 	struct timeval timeout;
@@ -449,7 +445,7 @@ callit(rqstp, xprt)
 	    return;
 	if ((pml = find_service(a.rmt_prog, a.rmt_vers, IPPROTO_UDP)) == NULL)
 	    return;
-	port = pml->pml_map.pm_port;
+	port = (u_short)pml->pml_map.pm_port;
 	get_myaddress(&me);
 	me.sin_port = htons(port);
 	client = clntudp_create(&me, a.rmt_prog, a.rmt_vers, timeout, &socket);

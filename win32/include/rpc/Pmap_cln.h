@@ -84,6 +84,8 @@
  *		where resp points to the results of the call and raddr is the
  *		address if the responder to the broadcast.
  */
+#ifndef __PMAP_CLN_HEADER__
+#define __PMAP_CLN_HEADER__
 #include <rpc/types.h>
 
 ONCRPCAPI bool_t		pmap_set();
@@ -92,3 +94,5 @@ ONCRPCAPI struct pmaplist	*pmap_getmaps();
 ONCRPCAPI enum clnt_stat		pmap_rmtcall();
 ONCRPCAPI enum clnt_stat		clnt_broadcast();
 ONCRPCAPI u_short		pmap_getport();
+
+#endif //__PMAP_CLN_HEADER__
