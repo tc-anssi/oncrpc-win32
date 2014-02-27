@@ -126,7 +126,11 @@ int callrpc(char *host, int prognum, int versnum, int procnum, xdrproc_t inproc,
 		crp->valid = 1;
 		crp->oldprognum = prognum;
 		crp->oldversnum = versnum;
+#ifdef WIN32
+		strcpy_s(crp->oldhost, 256, host);
+#else
 		strcpy(crp->oldhost, host);
+#endif
 	}
 	tottimeout.tv_sec = 25;
 	tottimeout.tv_usec = 0;

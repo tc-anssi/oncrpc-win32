@@ -125,7 +125,7 @@ enum auth_stat _svcauth_unix(struct svc_req *rqst,	struct rpc_msg *msg)
 		if ((u_int)((5 + gid_len) * BYTES_PER_XDR_UNIT + str_len) > auth_len) {
 #ifdef WIN32
 			char str[256];
-			sprintf(str, "bad auth_len gid %d str %d auth %d\n",
+			sprintf_s(str, 256, "bad auth_len gid %d str %d auth %d\n",
 			    gid_len, str_len, auth_len);
 			nt_rpc_report(str);
 #else

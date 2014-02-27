@@ -131,7 +131,7 @@ void xprt_register(SVCXPRT *xprt)
 	} else {
 		char str[256];
 		
-		sprintf(str, "too many connections (%d), compilation constant FD_SETSIZE was only %d", sock, FD_SETSIZE);
+		sprintf_s(str, 256, "too many connections (%d), compilation constant FD_SETSIZE was only %d", sock, FD_SETSIZE);
 		nt_rpc_report(str);
 	}
 #else
