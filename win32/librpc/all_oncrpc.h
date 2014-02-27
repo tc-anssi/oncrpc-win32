@@ -43,7 +43,6 @@
 #include <sys/types.h>
 #include <io.h>
 #include <errno.h>
-#include <winsock.h>
 
 #else  /* not WIN32 */
 #ifndef DllExport

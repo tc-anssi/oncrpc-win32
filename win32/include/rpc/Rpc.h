@@ -69,8 +69,8 @@
 //#define FD_SETSIZE	128
 
 #include <stdlib.h>
+#include <winsock2.h>
 #include <windows.h>
-#include <winsock.h>
 #include <rpc/types.h>		/* some typedefs */
 #include <process.h>
 #include <rpc/bcopy.h>
