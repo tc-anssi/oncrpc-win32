@@ -44,6 +44,14 @@
 #include <io.h>
 #include <errno.h>
 
+#if (_MSC_VER >= 1400) // The Visual C++ 2005 compiler version is 1400
+//RR: macros defined for the conformant ISO C++ since now the following functions
+// are deprecated
+#define MAX_BUFF_LEN 256
+#define getpid      _getpid
+#define lseek      _lseek
+#endif
+
 #else  /* not WIN32 */
 #ifndef DllExport
 #define DllExport	extern
