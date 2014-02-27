@@ -182,7 +182,9 @@ CLIENT *clnttcp_create(struct sockaddr_in *raddr,	u_long prog, u_long vers,	SOCK
 	 * If no socket given, open one
 	 */
 #ifdef WIN32
-	if (*sockp == INVALID_SOCKET) {
+	/* FIXME: we have to force (int) comparison to have amd64 support */
+	/* Make sure that we handle decently, socket is uint in Windows */
+	if ((int)(*sockp) == (int)(INVALID_SOCKET)) {
 		struct linger slinger;
 		
 		*sockp = socket(AF_INET, SOCK_STREAM, 0);
@@ -192,7 +194,7 @@ CLIENT *clnttcp_create(struct sockaddr_in *raddr,	u_long prog, u_long vers,	SOCK
 		slinger.l_linger = 0;
 		setsockopt(*sockp, SOL_SOCKET, SO_LINGER, (const char*)&slinger, sizeof(struct linger));
 
-		if ((*sockp == INVALID_SOCKET)
+		if ((int)(*sockp) == (int)(INVALID_SOCKET)
 		    || (connect(*sockp, (struct sockaddr *)raddr,
 		    sizeof(*raddr)) < 0)) {
 			rpc_createerr.cf_stat = RPC_SYSTEMERROR;
