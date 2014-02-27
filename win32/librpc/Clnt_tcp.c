@@ -412,7 +412,12 @@ static void clnttcp_destroy(CLIENT *h)
 
 	if (ct->ct_closeit) {
 #ifdef WIN32
-		closesocket(ct->ct_sock);
+		if(shutdown(ct->ct_sock, SD_BOTH)){
+			nt_rpc_report("clnttcp_destroy: error sending shutdown to peer\n");
+		}
+		if(closesocket(ct->ct_sock)){
+			nt_rpc_report("clnttcp_destroy: error closing socket\n");
+		}
 #else
 		close(ct->ct_sock);
 #endif
