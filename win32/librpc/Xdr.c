@@ -183,7 +183,10 @@ bool_t xdr_uint64_t(XDR *xdrs,	hyper *lp)
 	return xdr_u_hyper(xdrs, lp);
 }
 
-
+bool_t xdr_quad_t(XDR *xdrs, hyper *lp)
+{
+	return xdr_u_hyper(xdrs, lp);
+}
 
 /*
  * XDR long integers

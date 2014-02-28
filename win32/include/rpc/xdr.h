@@ -262,6 +262,7 @@ ONCRPCAPI bool_t	xdr_int32_t(XDR *xdrs, long *lp);
 ONCRPCAPI bool_t	xdr_uint32_t(XDR *xdrs, long *lp);
 ONCRPCAPI bool_t	xdr_int64_t(XDR *xdrs, hyper *lp);
 ONCRPCAPI bool_t	xdr_uint64_t(XDR *xdrs, hyper *lp);
+ONCRPCAPI bool_t	xdr_quad_t(XDR *xdrs, hyper *lp);
 ONCRPCAPI bool_t	xdr_short(XDR *xdrs, short *sp);
 ONCRPCAPI bool_t	xdr_u_short(XDR *xdrs, u_short *usp);
 ONCRPCAPI bool_t	xdr_bool(XDR *xdrs, bool_t *bp);
