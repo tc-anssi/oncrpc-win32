@@ -236,9 +236,10 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
     <PostBuildEvent>
-      <Command>IF NOT EXIST "$(SolutionDir)..\..\bin\" md "$(SolutionDir)..\..\bin\"
-copy "$(TargetDir)\*.lib" "$(SolutionDir)..\..\bin\"</Command>
-      <Message>Copy output files</Message>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug (DLL)|Win32'">
