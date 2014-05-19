@@ -43,6 +43,7 @@
     <ClCompile Include="..\..\librpc\clnt_gen.c" />
     <ClCompile Include="..\..\librpc\Clnt_per.c" />
     <ClCompile Include="..\..\librpc\clnt_raw.c" />
+    <ClCompile Include="..\..\librpc\Clnt_rdp.c" />
     <ClCompile Include="..\..\librpc\clnt_sim.c" />
     <ClCompile Include="..\..\librpc\Clnt_tcp.c" />
     <ClCompile Include="..\..\librpc\Clnt_udp.c" />

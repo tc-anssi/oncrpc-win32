@@ -268,7 +268,7 @@ ONCRPCAPI CLIENT *clntraw_create();
 
 
 /*
- * Generic client creation routine. Supported protocols are "udp" and "tcp"
+ * Generic client creation routine. Supported protocols are "udp", "tcp" and "rdp"
  */
 ONCRPCAPI CLIENT *clnt_create(/*host, prog, vers, prot*/); /*
 	char *host; 	-- hostname
@@ -278,7 +278,18 @@ ONCRPCAPI CLIENT *clnt_create(/*host, prog, vers, prot*/); /*
 */
 
 
-
+/*
+ * RDP based rpc
+ * CLIENT *
+ * clntrdp_create(NULL, prog, vers, sockp, sendsz, recvsz)
+ *	struct sockaddr_in *raddr_unused; 
+ *	u_long prog;
+ *	u_long version;
+ *	HANDLE *sockp;
+ *	u_int sendsz;
+ *	u_int recvsz;
+ */
+ONCRPCAPI CLIENT *clntrdp_create();
 
 /*
  * TCP based rpc
