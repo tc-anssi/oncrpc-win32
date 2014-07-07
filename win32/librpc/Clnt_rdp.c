@@ -395,40 +395,6 @@ static void clntrdp_destroy(CLIENT *h)
 }
 
 /*
- * Strips the header from the received PDU.
- */
-static int remove_header(caddr_t in_buffer, DWORD in_len, caddr_t out_buffer){
-    CHANNEL_PDU_HEADER *pHdr;
-
-#ifdef DEBUG
-	int i = 0;
-	printf("in_len %d, in_buffer %p, pHder len %d, new_addr %p\n", in_len, in_buffer, sizeof(*pHdr),  in_buffer+(sizeof(CHANNEL_PDU_HEADER)));
-#endif
-	pHdr = (CHANNEL_PDU_HEADER*)in_buffer;
-
-	if(in_len != (pHdr->length + sizeof(*pHdr))){
-		fprintf(stderr, "remove_header, length mismatch PDU len %d, read %d\n", pHdr->length, in_len);
-		return -1;
-	}
-	if(pHdr->flags & CHANNEL_FLAG_LAST){
-#ifdef DEBUG
-		fprintf(stderr, "Last chunk\n");
-#endif
-	}
-
-	memcpy(out_buffer, in_buffer+(sizeof(CHANNEL_PDU_HEADER)), pHdr->length);
-
-#ifdef DEBUG
-	for (i=0; i<pHdr->length; i++){
-		printf("%02x", (unsigned char)out_buffer[i]);
-	}
-	printf("\n");
-#endif
-
-	return pHdr->length;
-}
-
-/*
  * Function used to read some data using async primitives.
  */
 static int readrdp(struct ct_data *ct,	caddr_t buf, int len)
@@ -437,7 +403,7 @@ static int readrdp(struct ct_data *ct,	caddr_t buf, int len)
     DWORD dwRead;
     BOOL fSucc;
     HANDLE hEvent;
-	BYTE ReadBuffer[4096] = {0};
+	BYTE ReadBuffer[CHANNEL_PDU_LENGTH] = {0};
 
 	struct timeval *timeout;
 	long long requested_timeout;
@@ -445,6 +411,9 @@ static int readrdp(struct ct_data *ct,	caddr_t buf, int len)
     OVERLAPPED  Overlapped = {0};
 	DWORD dw;
 	DWORD error;
+	int total_len = 0;
+	int offset = 0;
+	CHANNEL_PDU_HEADER *pHdr = NULL;
 
 	if (len == 0)
 		return 0;
@@ -456,13 +425,15 @@ static int readrdp(struct ct_data *ct,	caddr_t buf, int len)
 
 	hEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
 
-    while(1){
+	pHdr = (CHANNEL_PDU_HEADER*)ReadBuffer;
+
+    do{
         Overlapped.hEvent = hEvent;
         // Read the entire message.
         fSucc = ReadFile(
             hFile,
 			ReadBuffer,
-            len,
+			sizeof(ReadBuffer),
             &dwRead,
             &Overlapped);
         if ( !fSucc ){
@@ -479,18 +450,45 @@ static int readrdp(struct ct_data *ct,	caddr_t buf, int len)
 							&Overlapped,
 							&dwRead,
 							FALSE );
-					        if ( !fSucc ){
-								ct->ct_error.re_status = RPC_CANTRECV;
-								ct->ct_error.re_errno = WSAerrno;
-								return -1;
+					    if ( !fSucc ){
+							ct->ct_error.re_status = RPC_CANTRECV;
+							ct->ct_error.re_errno = WSAerrno;
+							return -1;
+						}
+#ifdef DEBUG
+						fprintf(stderr, "PacketFlags %x, dwRead %d, packet->len %d\n", pHdr->flags, dwRead, pHdr->length);
+#endif
+						if(pHdr->flags & CHANNEL_FLAG_FIRST){
+#ifdef DEBUG
+							fprintf(stderr, "Fragmented packet %x, dwRead %d, hd->len %d\n", pHdr->flags, dwRead, pHdr->length);
+#endif
+							/* FIXME check that buf is large enough */
+							total_len = pHdr->length;
+							memcpy(buf, ReadBuffer+(sizeof(CHANNEL_PDU_HEADER)), dwRead-(sizeof(CHANNEL_PDU_HEADER)));
+							offset += dwRead-(sizeof(CHANNEL_PDU_HEADER));
+						}
+						else{
+							if(pHdr->flags & CHANNEL_FLAG_LAST){
+#ifdef DEBUG
+								fprintf(stderr, "Last packet\n");
+#endif
+								/* FIXME check that buf is large enough */
+								memcpy(buf+(offset), ReadBuffer+(sizeof(CHANNEL_PDU_HEADER)), dwRead-(sizeof(CHANNEL_PDU_HEADER)));
+								offset += dwRead-(sizeof(CHANNEL_PDU_HEADER));
+#ifdef DEBUG
+								fprintf(stderr, "total_len %d, offset %d\n", total_len, offset);
+#endif
 							}
-							dwRead = remove_header((caddr_t)ReadBuffer, dwRead, buf);
-							if(dwRead == -1){
-								ct->ct_error.re_status = WSAECONNRESET;
-								ct->ct_error.re_errno = WSAerrno;
-								return -1;
+							else{
+#ifdef DEBUG
+								fprintf(stderr, "Other packet\n");
+#endif
+								/* FIXME check that buf is large enough */
+								memcpy(buf+(offset), ReadBuffer+(sizeof(CHANNEL_PDU_HEADER)), dwRead-(sizeof(CHANNEL_PDU_HEADER)));
+								offset += dwRead-(sizeof(CHANNEL_PDU_HEADER));
 							}
-							return dwRead;
+						}
+						break;
 					}
 					default:
 						ct->ct_error.re_status = RPC_CANTRECV;
@@ -505,11 +503,34 @@ static int readrdp(struct ct_data *ct,	caddr_t buf, int len)
 				return -1;
 			}
         }
-		//IO completed right away
-		dwRead = remove_header((caddr_t)ReadBuffer, dwRead, buf);
-
-		return dwRead;
-	}
+		/* ReadFile immediate fetch */
+		else{
+#ifdef DEBUG
+			fprintf(stderr, "PacketFlags %x, dwRead %d, packet->len %d\n", pHdr->flags, dwRead, pHdr->length);
+#endif
+			if(pHdr->flags & CHANNEL_FLAG_LAST){
+#ifdef DEBUG
+				fprintf(stderr, "Last packet\n");
+#endif
+				/* FIXME check that buf is large enough */
+				memcpy(buf+(offset), ReadBuffer+(sizeof(CHANNEL_PDU_HEADER)), dwRead-(sizeof(CHANNEL_PDU_HEADER)));
+				offset += dwRead-(sizeof(CHANNEL_PDU_HEADER));
+#ifdef DEBUG
+				fprintf(stderr, "total_len %d, offset %d\n", total_len, offset);
+#endif
+			}
+			else{
+#ifdef DEBUG
+				fprintf(stderr, "Other packet\n");
+#endif
+				/* FIXME check that buf is large enough */
+				memcpy(buf+(offset), ReadBuffer+(sizeof(CHANNEL_PDU_HEADER)), dwRead-(sizeof(CHANNEL_PDU_HEADER)));
+				offset += dwRead-(sizeof(CHANNEL_PDU_HEADER));
+			}
+		}
+	} while ( 0 == (pHdr->flags & CHANNEL_FLAG_LAST));
+	/* FIXME: make sure total_len == offset */
+	return offset;
 }
 
 /*
