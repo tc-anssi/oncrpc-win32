@@ -53,12 +53,62 @@ struct ct_data {
 	XDR		ct_xdrs;
 };
 
+int processId_to_sessionId()
+{
+    DWORD processID;
+    DWORD sessionID = 0;
+    char str[32] = {0};
+
+    /*
+    PHANDLE hUserToken = 0;
+    PHANDLE hTokenDup = 0;
+    DWORD i = 0;
+    PWTS_SESSION_INFO pSessionInfo = 0;
+    DWORD dwCount = 0;
+    int dataSize = sizeof(WTS_SESSION_INFO);
+
+    // Get the list of all terminal sessions
+    WTSEnumerateSessions(WTS_CURRENT_SERVER_HANDLE, 0, 1,
+                         &pSessionInfo, &dwCount);
+
+    sprintf(str, "Found %d sessions", dwCount);
+    nt_rpc_report(str);
+    // look over obtained list in search of the active session
+    for (i = 0; i < dwCount; ++i)
+    {
+        WTS_SESSION_INFO si = pSessionInfo[i];
+        memset(str, 0, 32);
+        sprintf(str, "%s is %d", si.pWinStationName, si.SessionId);
+        nt_rpc_report(str);
+    }
+    WTSFreeMemory(pSessionInfo);
+    */
+    processID = GetCurrentProcessId();
+    if(ProcessIdToSessionId(processID, &sessionID) == 0){
+        wchar_t buf[256] = {0};
+        DWORD rc;
+        nt_rpc_report("Could not map PID to SessionID\n");
+        rc = GetLastError();
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, rc, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)buf, 256, NULL);
+        nt_rpc_report((LPSTR)buf);
+        return -1;
+    }
+    else{
+#ifdef DEBUG
+        memset(str, 0, 32);
+        sprintf(str, "should use session %d", sessionID);
+        nt_rpc_report(str);
+#endif
+        return sessionID;
+    }
+}
+
 /*
 *  Open a dynamic channel with the name given in szChannelName.
 *  The output file handle can be used in ReadFile/WriteFile calls.
 */
 DWORD OpenChannel(
-    LPCSTR szChannelName, 
+    LPCSTR szChannelName,
     HANDLE *phFile )
 {
     HANDLE hWTSHandle = NULL;
@@ -66,17 +116,41 @@ DWORD OpenChannel(
     PVOID vcFileHandlePtr = NULL;
     DWORD len;
     DWORD rc = ERROR_SUCCESS;
-	BOOL fSucc;
+    BOOL fSucc;
+    DWORD sessionID;
 
+	/*FIXME WTS_CURRENT_SESSION has to be adapted when called with different
+    * priv levels
+	*/
+    /*
     hWTSHandle = WTSVirtualChannelOpenEx(
         WTS_CURRENT_SESSION,
         (LPSTR)szChannelName,
-		WTS_CHANNEL_OPTION_DYNAMIC );
+        WTS_CHANNEL_OPTION_DYNAMIC );
+    */
+	/*Could check value of sessionId, but WTSVirtualChannelOpenEx will take
+    * care of it
+    */
+    sessionID = processId_to_sessionId();
+    hWTSHandle = WTSVirtualChannelOpenEx(
+        sessionID,
+        (LPSTR)szChannelName,
+        WTS_CHANNEL_OPTION_DYNAMIC );
+
     if ( NULL == hWTSHandle )
     {
-		nt_rpc_report("Error from WTSVirtualChannelOpenEx\n");
-		printf("Error from WTSVirtualChannelOpenEx\n");
+        char str[32] = {0};
+        wchar_t buf[256] = {0};
+        nt_rpc_report("Error from WTSVirtualChannelOpenEx\n");
+#ifdef DEBUG
+        printf("Error from WTSVirtualChannelOpenEx\n");
+#endif
         rc = GetLastError();
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, rc,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)buf, 256, NULL);
+        sprintf(str, "Error %x session %d", rc, sessionID);
+        nt_rpc_report(str);
+        nt_rpc_report((LPSTR)buf);
         goto exitpt;
     }
 
@@ -87,20 +161,22 @@ DWORD OpenChannel(
         &len );
     if ( !fSucc )
     {
-		nt_rpc_report("Error from WTSVirtualChannelQuery\n");
-		printf("Error from WTSVirtualChannelQuery\n");
+        nt_rpc_report("Error from WTSVirtualChannelQuery\n");
+#ifdef DEBUG
+        printf("Error from WTSVirtualChannelQuery\n");
+#endif
         rc = GetLastError();
         goto exitpt;
     }
-	
     if ( len != sizeof( HANDLE ))
     {
-		nt_rpc_report("INVALID PARAMETER\n");
-		printf("INVALID PARAMETER\n");
+        nt_rpc_report("INVALID PARAMETER\n");
+#ifdef DEBUG
+        printf("INVALID PARAMETER\n");
+#endif
         rc = ERROR_INVALID_PARAMETER;
         goto exitpt;
     }
-	
     hWTSFileHandle = *(HANDLE *)vcFileHandlePtr;
 
     fSucc = DuplicateHandle(
@@ -113,8 +189,10 @@ DWORD OpenChannel(
         DUPLICATE_SAME_ACCESS );
     if ( !fSucc )
     {
-		nt_rpc_report("Error from DuplicateHandle\n");
-		printf("Error from DuplicateHandle\n");
+        nt_rpc_report("Error from DuplicateHandle\n");
+#ifdef DEBUG
+        printf("Error from DuplicateHandle\n");
+#endif
         rc = GetLastError();
         goto exitpt;
     }
@@ -179,9 +257,9 @@ CLIENT *clntrdp_create(struct sockaddr_in *raddr,	u_long prog, u_long vers,	HAND
 	if(OpenChannel(CHANNEL_NAME, &hHandle) != ERROR_SUCCESS){
 			rpc_createerr.cf_stat = RPC_SYSTEMERROR;
 			rpc_createerr.cf_error.re_errno = WSAerrno;
-#endif
 			goto fooy;
 	}
+#endif
 	*sockp = hHandle;
 	ct->ct_closeit = TRUE;
 	/*
