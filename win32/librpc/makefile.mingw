@@ -1,4 +1,3 @@
-MINGW=i686-w64-mingw32
 CC=$(MINGW)-gcc
 CFLAGS=-fno-builtin-bcopy -fno-builtin-bcmp -fno-builtin-bzero
 
@@ -29,7 +28,7 @@ clean:
 	rm -f $(OBJS) oncrpc.lib oncrpc.dll oncrpc.exp portmap.obj portmap.exe ../rpcgen/oncrpc.dll
 
 portmap.exe:	oncrpc.lib portmap.c
-	$(CC) -I$(RPCINCLUDEPATH) -c -DONCRPCDLL $(CFLAGS) $(CVARSDLL) portmap.c
+	$(CC) -I$(RPCINCLUDEPATH) -c -DONCRPC_STATIC $(CFLAGS) $(CVARSDLL) portmap.c
 	$(CC) -static -o portmap.exe portmap.o $(RPCLIBPATH)oncrpc.lib -lwsock32
 	cp portmap.exe ../bin/pm_ascii.exe
 
@@ -44,4 +43,4 @@ oncrpc.dll: objs oncrpc.lib
 	cp oncrpc.dll ../rpcgen
 
 objs:
-	$(CC) -I$(RPCINCLUDEPATH) -c -DONCRPCDLL $(CFLAGS) $(CVARSDLL) $(SRC)
+	$(CC) -I$(RPCINCLUDEPATH) -c -DONCRPC_STATIC $(CFLAGS) $(CVARSDLL) $(SRC)

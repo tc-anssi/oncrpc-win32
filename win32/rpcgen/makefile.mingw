@@ -1,4 +1,3 @@
-MINGW=i686-w64-mingw32
 CC=$(MINGW)-gcc
 CFLAGS=-fno-builtin-bcopy -fno-builtin-bcmp -fno-builtin-bzero
 
@@ -23,4 +22,4 @@ clean:
 	rm -f $(GOAL) $(OBJS)
 
 objs:
-	$(CC) -DONCRPCDLL -c -I$(RPCINCLUDEPATH) $(CFLAGS) $(SRC)
+	$(CC) -DONCRPC_STATIC -c -I$(RPCINCLUDEPATH) $(CFLAGS) $(SRC)

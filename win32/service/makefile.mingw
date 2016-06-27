@@ -1,4 +1,3 @@
-MINGW=i686-w64-mingw32
 CC=$(MINGW)-gcc
 CFLAGS=-fno-builtin-bcopy -fno-builtin-bcmp -fno-builtin-bzero
 
@@ -21,10 +20,10 @@ clean:
 	rm -f *.o *.exe	
 
 portmap.exe: service.c portmap.c $(RPCLIBPATH)/oncrpc.lib
-	$(CC) -I$(RPCINCLUDEPATH) -D$(OS) -DONCRPCDLL $(CFLAGS) -o portmap.exe portmap.c service.c $(RPCLIBPATH)/oncrpc.lib -lwsock32 -ladvapi32 -luser32
+	$(CC) -I$(RPCINCLUDEPATH) -D$(OS) -DONCRPC_STATIC $(CFLAGS) -o portmap.exe portmap.c service.c $(RPCLIBPATH)/oncrpc.lib -lwsock32 -ladvapi32 -luser32
 	cp portmap.exe ../bin/
 
 inst_pm.exe: inst_pm.c
-	$(CC) -I$(RPCINCLUDEPATH) -D$(OS) -DONCRPCDLL $(CFLAGS) -o inst_pm.exe inst_pm.c -ladvapi32 -luser32
+	$(CC) -I$(RPCINCLUDEPATH) -D$(OS) -DONCRPC_STATIC $(CFLAGS) -o inst_pm.exe inst_pm.c -ladvapi32 -luser32
 	cp inst_pm.exe ../bin
 
