@@ -1,0 +1,9 @@
+all:
+	mkdir -p win32/bin
+	cd win32/librpc && make -f makefile.mingw
+	cd win32/rpcgen && make -f makefile.mingw
+	cd win32/rpcinfo && make -f makefile.mingw
+	cd win32/service && make -f makefile.mingw
+
+clean:
+	rm -f win32/*/*.o win32/*/*.exe win32/*/*.dll win32/*/*.lib
